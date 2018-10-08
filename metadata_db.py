@@ -12,7 +12,7 @@ class Transaction (Base):
     tx_hash = Column(String(64), unique = True)
     tx_gas_limit = Column(Integer, nullable = True)
     tx_gas_price = Column(Numeric, nullable = True)
-    bck_id = Column(Integer, ForeignKey('block.block_id'), nullable = True)
+    bck_id = Column(Integer, ForeignKey('block.bck_id'), nullable = True)
 
 class Block (Base):
     # https://api.blockcypher.com/v1/eth/main/blocks/7
