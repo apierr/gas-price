@@ -5,7 +5,7 @@ from extract_from_file import Extract_from_file
 
 class Load:
 
-    def __init__(self, db_name):
+    def __init__(self, db_name = 'tx.db'):
         self.db_name = db_name
         self._set_session()
 
@@ -20,6 +20,10 @@ class Load:
             tx = Transaction(*args)
             self.session.merge(tx)
             self.session.commit()
+
+    def get_hashes_without_block_id(self):
+        return [ col[0] for col in self.session.query(Transaction.tx_hash) \
+            .filter(Transaction.bck_id.is_(None)).all() ]
 
     def load_txs(self, txs):
         for tx in txs: self.load_tx(tx)
