@@ -1,19 +1,30 @@
-import json
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from metadata_db import Base, Transaction
+from extract_from_file import Extract_from_file
 
 class Load:
 
-    def __init__(self):
-        self.x = ''
+    def __init__(self, db_name):
+        self.db_name = db_name
+        self._set_session()
 
-    def _load(self):
-        with open('0_8f_txs.json', 'r') as f:
-            txs = json.load(f)
-        return txs
+    def _set_session(self):
+        engine = create_engine('///'.join(['sqlite:', self.db_name]))
+        Base.metadata.bind = engine
+        DBSession = sessionmaker(bind = engine)
+        self.session = DBSession()
 
-    def _parse(self):
-        for tx in self._load():
-            print(tx['hash'])
+    def load_tx(self, args):
+        if not self.session.query(Transaction).filter_by(tx_hash = args[1]).first():
+            tx = Transaction(*args)
+            self.session.merge(tx)
+            self.session.commit()
+
+    def load_txs(self, txs):
+        for tx in txs: self.load_tx(tx)
 
 if __name__ == '__main__':
-    load = Load()
-    load._parse()
+    load = Load('tx.db')
+    extract = Extract_from_file()
+    load.load_txs(extract.get_txs())

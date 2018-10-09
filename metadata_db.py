@@ -1,6 +1,8 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, Numeric, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from datetime import datetime
+import re
 
 Base = declarative_base()
 
@@ -8,11 +10,28 @@ class Transaction (Base):
     # https://api.blockcypher.com/v1/eth/main/txs (ok)
     __tablename__ = 'transaction'
     tx_id = Column(Integer, primary_key = True)
-    tx_ts = Column(Integer, nullable = False)
+    tx_received = Column(Integer, nullable = False)
     tx_hash = Column(String(64), unique = True)
     tx_gas_limit = Column(Integer, nullable = True)
     tx_gas_price = Column(Numeric, nullable = True)
+    tx_fees = Column(Integer, nullable = True)
+    tx_double_spend = Column(Boolean, nullable = True)
     bck_id = Column(Integer, ForeignKey('block.bck_id'), nullable = True)
+
+    # For passing position arguments to the creation of the Transaction object
+    def __init__(self, ts, hash, gas_limit, gas_price, fees, double_spend):
+        self.tx_received = self._get_unix_ts(ts)
+        self.tx_hash = hash
+        self.tx_gas_limit = gas_limit
+        self.tx_gas_price = gas_price
+        self.tx_fees = fees
+        self.tx_double_spend = double_spend
+
+    def _get_unix_ts(self, ts):
+        print(ts)
+        ts = re.sub('.\d{1,}Z', '', ts)
+        format = '%Y-%m-%dT%H:%M:%S'
+        return int(datetime.strptime(ts, format).strftime('%s'))
 
 class Block (Base):
     # https://api.blockcypher.com/v1/eth/main/blocks/7
@@ -45,7 +64,7 @@ class PoolStats (Base):
     workers = Column(Integer, nullable = False)
     blocksPerHour = Column(Numeric, nullable = False)
 
-class BlockCypherPoolStats
+class BlockCypherPoolStats(Base):
     # https://api.blockcypher.com/v1/eth/main
     __tablename__ = 'blockcypherpoolstats'
     bcps_id = Column(Integer, primary_key = True)
@@ -81,5 +100,5 @@ class EtherChain (Base):
 
 if __name__ == '__main__':
     engine = create_engine('sqlite:///tx.db')
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind = engine)
     Base.metadata.create_all(engine)

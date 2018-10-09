@@ -1,3 +1,6 @@
 *.json
 *.db
 output
+__pycache__
+*.zip
+*pyc

@@ -6,7 +6,8 @@ class Extract:
 
     def __init__(self):
         self.start_time = time.time()
-        self.max_requests_per_token = 190 #200
+        self.max_requests_per_token = 200 #200
+        # TODO take tokens from Shell Variables 
         self.tokens = [
             '8f8751bd9aa7419fb9ca04c72b47002f',
             'ca1af79ec91947c0845a4c1e0794a568',
@@ -59,7 +60,7 @@ class Extract:
             for url in self.urls:
                 if url == 'blockcypher_txs':
                     continue
-                Timer(i * 60.0, self._download_every_minute, [url]).start()
+                Timer(i * 15.0, self._download_every_minute, [url]).start()
 
 if __name__ == '__main__':
     extract = Extract()
