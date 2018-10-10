@@ -1,21 +1,14 @@
 import subprocess, time
 from user_agent import generate_user_agent as user_agent
 from threading import Timer
+import tokens_config as cfg
 
 class Extract:
 
     def __init__(self):
         self.start_time = time.time()
         self.max_requests_per_token = 200 #200
-        # TODO take tokens from Shell Variables 
-        self.tokens = [
-            '8f8751bd9aa7419fb9ca04c72b47002f',
-            'ca1af79ec91947c0845a4c1e0794a568',
-            '74991f4042ae47f689deb587b8d3ed54',
-            'a3ff4595a44e4c21a4ae621cfc58d376',
-            '533f8c572729432f91579df65ca6d8fb'
-        ]
-        self.minutes = int(self.max_requests_per_token * 2 * len(self.tokens) / 30) + 1
+        self.minutes = int(self.max_requests_per_token * 2 * len(cfg.tokens) / 30) + 1
         self.urls = {
             'blockcypher_txs': 'https://api.blockcypher.com/v1/eth/main/txs',
             'ethergasstation': 'https://ethgasstation.info/json/ethgasAPI.json',
@@ -29,12 +22,7 @@ class Extract:
         return 'output/' + str(int(time.time())) + '_' + url + '.json'
 
     def _get_subprocess_args(self, url):
-        return [
-            'wget',
-            self._get_url(url),
-            '-O',
-            self._get_file_name(url)
-        ]
+        return ['wget', self._get_url(url), '-O', self._get_file_name(url)]
 
     def _get_url(self, url):
         if url == 'blockcypher_txs':
@@ -50,7 +38,7 @@ class Extract:
 
     def download_every_second(self):
         interval = 0
-        for token in self.tokens:
+        for token in cfg.tokens:
             for i in range(1, self.max_requests_per_token + 1):
                 Timer(interval, self._download_every_second, [token]).start()
                 interval = interval + 2
