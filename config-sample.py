@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-import preprocessing
-
 tokens = [
     'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
     'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
@@ -15,4 +13,4 @@ tokens = [
     'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
     'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 ]
-use_anonymous = True
+

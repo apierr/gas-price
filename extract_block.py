@@ -3,7 +3,7 @@ from random import randint
 from metadata_db import Base, Transaction
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import tokens_config as cfg
+import config as cfg
 
 class Extract_block:
 

@@ -1,7 +1,7 @@
 import subprocess, time
 from user_agent import generate_user_agent as user_agent
 from threading import Timer
-import tokens_config as cfg
+import config as cfg
 
 class Extract:
 
