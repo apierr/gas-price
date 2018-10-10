@@ -4,3 +4,4 @@ output
 __pycache__
 *.zip
 *pyc
+*config.py
