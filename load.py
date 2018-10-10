@@ -1,14 +1,12 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from metadata_db import Base, Transaction
+from metadata_db import Transaction
 from extract_from_file import Extract_from_file
 from extract_block import Extract_block
+from db_session import get_session_db
 
 class Load:
 
-    def __init__(self, db_name = 'tx.db'):
-        self.db_name = db_name
-        self._set_session()
+    def __init__(self):
+        self.session = get_session_db()
 
     def _load_tx(self, args):
         if not self.session.query(Transaction).filter_by(tx_hash = args[1]).first():
@@ -22,12 +20,6 @@ class Load:
         tx.bck_id = args['block_height']
         tx.tx_gas_used = args['gas_used']
         self.session.commit()
-
-    def _set_session(self):
-        engine = create_engine('///'.join(['sqlite:', self.db_name]))
-        Base.metadata.bind = engine
-        DBSession = sessionmaker(bind = engine)
-        self.session = DBSession()
 
     def load_txs(self, txs):
         for tx in txs: self._load_tx(tx)
@@ -43,7 +35,7 @@ class Load:
                 self._load_bckId_gasUsed_into_tx(bckId_gasUsed)
 
 if __name__ == '__main__':
-    load = Load('tx.db')
+    load = Load()
     # extract = Extract_from_file()
     # load.load_txs(extract.get_txs())
     load.load_bckId_gasUsed_into_txs()
