@@ -16,20 +16,20 @@ class Transaction (Base):
     tx_gas_price = Column(Numeric, nullable = True)
     tx_fees = Column(Integer, nullable = True)
     tx_double_spend = Column(Boolean, nullable = True)
+    tx_gas_used = Column(Integer, nullable = True)
     bck_id = Column(Integer, ForeignKey('block.bck_id'), nullable = True)
 
     # For passing position arguments to the creation of the Transaction object
     def __init__(self, ts, hash, gas_limit, gas_price, fees, double_spend):
-        self.tx_received = self._get_unix_ts(ts)
+        self.tx_received = self._get_unix_ts(ts, hash)
         self.tx_hash = hash
         self.tx_gas_limit = gas_limit
         self.tx_gas_price = gas_price
         self.tx_fees = fees
         self.tx_double_spend = double_spend
 
-    def _get_unix_ts(self, ts):
-        print(ts)
-        ts = re.sub('.\d{1,}Z', '', ts)
+    def _get_unix_ts(self, ts, hash):
+        ts = re.sub('(\.\d{1,})?Z', '', ts)
         format = '%Y-%m-%dT%H:%M:%S'
         return int(datetime.strptime(ts, format).strftime('%s'))
 
