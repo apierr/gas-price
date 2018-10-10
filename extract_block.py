@@ -1,19 +1,16 @@
 import urllib.request, json
 from random import randint
-from metadata_db import Base, Transaction
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from session_db import get_session_db
 import config as cfg
+from metadata_db import Transaction
 
 class Extract_block:
 
-    def __init__(self, db_name = 'tx.db'):
+    def __init__(self):
         self.urls = {
             'transaction': 'https://api.blockcypher.com/v1/eth/main/txs/',
             'block': 'https://api.blockcypher.com/v1/eth/main/blocks/'
         }
-        self.db_name = db_name
-        self._set_session()
         self.bckId_gasUsed_keys = ['hash', 'block_height', 'gas_used']
 
     def _get_json(self, hash):
@@ -26,13 +23,6 @@ class Extract_block:
             default_values = [hash, 0, None]
             return dict(zip(self.bckId_gasUsed_keys, default_values))
 
-    # TODO code duplication (see load.py)
-    def _set_session(self):
-        engine = create_engine('///'.join(['sqlite:', self.db_name]))
-        Base.metadata.bind = engine
-        DBSession = sessionmaker(bind = engine)
-        self.session = DBSession()
-
     def _get_url(self, hash):
         return self.urls['transaction'] + hash + '?token=' + cfg.tokens[randint(0,14)]
 
@@ -42,7 +32,7 @@ class Extract_block:
         return {key: json.get(key) for key in self.bckId_gasUsed_keys}
 
     def get_hashes_without_block_id(self):
-        return [ col[0] for col in self.session.query(Transaction.tx_hash) \
+        return [ col[0] for col in get_session_db().query(Transaction.tx_hash) \
             .filter(Transaction.bck_id.is_(None)).all() ]
 
 if __name__ == '__main__':
