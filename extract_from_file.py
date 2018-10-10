@@ -7,7 +7,7 @@ class Extract_from_file:
         self.pattern = './output/*_txs.json'
 
     def _get_class_attributes(self, cls):
-        return [i[3:] for i in cls.__dict__.keys() if i[:1] != '_'][1:-1]
+        return [i[3:] for i in cls.__dict__.keys() if i[:1] != '_'][1:-2]
 
     def _get_data(self, json, cls_attributes):
         return [json[i] for i in  cls_attributes]
@@ -25,7 +25,6 @@ class Extract_from_file:
             jsons = self._get_json(file)
             for json in jsons:
                 txs.append(self._get_data(json, cls_attributes))
-            break
         return txs
 
 if __name__ == '__main__':
