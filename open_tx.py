@@ -1,7 +1,7 @@
 import metadata_db
 from utility import get_json_from_file, get_files
 
-class Extract_from_file:
+class Open_tx:
 
     def __init__(self):
         self.pattern = './output/*_txs.json'
@@ -19,9 +19,10 @@ class Extract_from_file:
             txs_json = get_json_from_file(file)
             if txs_json:
                 for tx in txs_json:
+                    print(tx['hash'])
                     txs.append([tx[i] for i in  cls_attributes])
         return txs
 
 if __name__ == '__main__':
-    extract = Extract_from_file()
-    extract.get_txs()
+    open_tx = Open_tx()
+    open_tx.get_txs()
