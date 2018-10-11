@@ -2,6 +2,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, Numeric, cr
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
+from utility import get_unix_ts
 import re
 
 Base = declarative_base()
@@ -21,38 +22,47 @@ class Transaction (Base):
 
     # For passing position arguments to the creation of the Transaction object
     def __init__(self, ts, hash, gas_limit, gas_price, fees, double_spend):
-        self.tx_received = self._get_unix_ts(ts, hash)
+        self.tx_received = get_unix_ts(ts)
         self.tx_hash = hash
         self.tx_gas_limit = gas_limit
         self.tx_gas_price = gas_price
         self.tx_fees = fees
         self.tx_double_spend = double_spend
 
-    def _get_unix_ts(self, ts, hash):
-        ts = re.sub('(\.\d{1,})?Z', '', ts)
-        format = '%Y-%m-%dT%H:%M:%S'
-        return int(datetime.strptime(ts, format).strftime('%s'))
-
 class Block (Base):
     # https://api.blockcypher.com/v1/eth/main/blocks/7
     __tablename__ = 'block'
     bck_id = Column(Integer, primary_key = True)
-    bck_ts = Column(Integer, nullable = False)
+    bck_time = Column(Integer, nullable = False)
     bck_hash = Column(String(64), nullable = False, unique = True)
-    bck_gas_limit = Column(Integer, nullable = True)
-    bck_time = Column(Integer, nullable = True)
-    reward = Column(Numeric, nullable = True)
-    fees = Column(Numeric, nullable = True)
+    bcl_prev_block = Column(String(64), nullable = True, unique = True)
+    bck_size = Column(Integer, nullable = True)
+    bck_fees = Column(Integer, nullable = True)
+    bkc_total = Column(Integer, nullable = True)
+    bck_n_tx = Column(Integer, nullable = True)
+    bck_reward = Column(Integer, nullable = True)
+
+    # For passing position arguments to the creation of the Transaction object
+    def __init__(self, height, time, hash, prev_block, size, fees, total, n_tx):
+        self.bck_id = height
+        self.bck_time = get_unix_ts(time)
+        self.bck_hash = hash
+        self.bck_prev_block = prev_block
+        self.bck_size = size
+        self.bck_fees = fees
+        self.bck_total = total
+        self.bck_n_tx = n_tx
 
 class NetworkStats (Base):
     # https://api.ethpool.org/networkStats
     __tablename__ = 'networkstats'
     ns_id = Column(Integer, primary_key = True)
-    ns_ts = Column(Integer, nullable = False)
-    difficulty = Column(Integer, nullable = False)
-    ns_hashrate = Column(Numeric, nullable = False)
-    usd = Column(Numeric, nullable = True)
-    btc = Column(Numeric, nullable = True)
+    ns_time = Column(Integer, nullable = False)
+    ns_blockTime = Column(Numeric, nullable = False)
+    ns_difficulty = Column(Integer, nullable = False)
+    ns_hashrate = Column(Integer, nullable = False)
+    ns_usd = Column(Numeric, nullable = True)
+    ns_btc = Column(Numeric, nullable = True)
 
 class PoolStats (Base):
     # https://api.ethpool.org/poolStats
