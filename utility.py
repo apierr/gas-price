@@ -8,6 +8,7 @@ urls = {
     'block': 'https://api.blockcypher.com/v1/eth/main/blocks/',
     'pending_txs': 'https://api.blockcypher.com/v1/eth/main/txs',
     'ether_gas_stn': 'https://ethgasstation.info/json/ethgasAPI.json',
+    'ether_gas_price_wait_stn': 'https://ethgasstation.info/json/priceWait.json',
     'ether_chain': 'https://www.etherchain.org/api/gasPriceOracle',
     'net_stats': 'https://api.ethpool.org/networkStats',
     'pools_stats': 'https://api.ethpool.org/poolStats',
