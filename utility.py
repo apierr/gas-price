@@ -22,7 +22,7 @@ def _get_random_token():
     return '?token=' + cfg.tokens[randint(0, len(cfg.tokens) - 1)]
 
 def get_file_name(url_key, arg = ''):
-    return 'output/' + str(int(time.time())) + '_' + arg + '_' + url_key + '.json'
+    return cfg.output_path + str(int(time.time())) + '_' + arg + '_' + url_key + '.json'
 
 def get_json_from_file(file_name):
     with open(file_name) as file:
