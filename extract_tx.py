@@ -13,7 +13,8 @@ class Extract:
         number_of_times_each_minute = 30
         interval = 60 / (number_of_times_each_minute)
         for i in range(number_of_times_each_minute):
-            Timer(i * interval, self._download, ['pending_txs']).start()
+            for url_key in ['pending_txs']:
+                Timer(i * interval, self._download, [url_key]).start()
 
     def download_stats(self):
         number_of_times_each_minute = 4
