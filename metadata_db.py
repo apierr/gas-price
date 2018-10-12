@@ -10,24 +10,24 @@ Base = declarative_base()
 class Transaction (Base):
     # https://api.blockcypher.com/v1/eth/main/txs (ok)
     __tablename__ = 'transaction'
-    tx_id = Column(Integer, primary_key = True)
-    tx_received = Column(Integer, nullable = False)
-    tx_hash = Column(String(64), unique = True)
-    tx_gas_limit = Column(Integer, nullable = True)
-    tx_gas_price = Column(Numeric, nullable = True)
-    tx_fees = Column(Integer, nullable = True)
-    tx_double_spend = Column(Boolean, nullable = True)
-    tx_gas_used = Column(Integer, nullable = True)
+    id = Column(Integer, primary_key = True)
+    hash = Column(String(64), unique = True)
+    received = Column(Integer, nullable = False)
+    gas_limit = Column(Integer, nullable = True)
+    gas_price = Column(Numeric, nullable = True)
+    fees = Column(Integer, nullable = True)
+    double_spend = Column(Boolean, nullable = True)
+    gas_used = Column(Integer, nullable = True)
     bck_id = Column(Integer, ForeignKey('block.bck_id'), nullable = True)
 
     # For passing position arguments to the creation of the Transaction object
-    def __init__(self, ts, hash, gas_limit, gas_price, fees, double_spend):
-        self.tx_received = get_unix_ts(ts)
-        self.tx_hash = hash
-        self.tx_gas_limit = gas_limit
-        self.tx_gas_price = gas_price
-        self.tx_fees = fees
-        self.tx_double_spend = double_spend
+    def __init__(self, hash, ts, gas_limit, gas_price, fees, double_spend):
+        self.hash = hash
+        self.received = get_unix_ts(ts)
+        self.gas_limit = gas_limit
+        self.gas_price = gas_price
+        self.fees = fees
+        self.double_spend = double_spend
 
 class Block (Base):
     # https://api.blockcypher.com/v1/eth/main/blocks/7
@@ -64,7 +64,7 @@ class NetworkStats (Base):
     ns_usd = Column(Numeric, nullable = True)
     ns_btc = Column(Numeric, nullable = True)
 
-class PoolStats (Base):
+class PoolsStats (Base):
     # https://api.ethpool.org/poolStats
     __tablename__ = 'poolstats'
     ps_id = Column(Integer, primary_key = True)
@@ -74,11 +74,29 @@ class PoolStats (Base):
     workers = Column(Integer, nullable = False)
     blocksPerHour = Column(Numeric, nullable = False)
 
-class BlockCypherPoolStats(Base):
+class MemoryPool(Base):
     # https://api.blockcypher.com/v1/eth/main
-    __tablename__ = 'blockcypherpoolstats'
-    bcps_id = Column(Integer, primary_key = True)
-    bcps_ts = Column(Integer, nullable = False)
+    __tablename__ = 'memoryPool'
+    id = Column(Integer, primary_key = True)
+    height = Column(Integer, nullable = False)
+    time = Column(Integer, nullable = False)
+    unconfirmed_count = Column(Integer, nullable = False)
+    high_gas_price = Column(Integer, nullable = False)
+    medium_gas_price = Column(Integer, nullable = False)
+    low_gas_price = Column(Integer, nullable = False)
+    last_fork_height = Column(Integer, nullable = False)
+    peer_count = Column(Integer, nullable = False)
+
+    # For passing position arguments to the creation of the Transaction object
+    def __init__(self, height, time, unc_count, h_gprice, m_gprice, l_gprice, lfork, pcount):
+        self.height = height
+        self.time = get_unix_ts(time)
+        self.unconfirmed_count = unc_count
+        self.high_gas_price = h_gprice
+        self.medium_gas_price = m_gprice
+        self.low_gas_price = l_gprice
+        self.last_fork_height = lfork
+        self.peer_count = pcount
 
 class EtherGasStation (Base):
     # https://ethgasstation.info/json/ethgasAPI.json (ok)
@@ -107,6 +125,13 @@ class EtherChain (Base):
     standard = Column(Numeric, nullable = True)
     ec_fast = Column(Numeric, nullable = True)
     ec_fastest = Column(Numeric, nullable = True)
+
+class PendingTransactionFound(Base):
+    # https://etherscan.io/txsPending
+    __tablename__ = 'pendingtxsfound'
+    id = Column(Integer, primary_key = True)
+    ts = Column(Integer, nullable = False)
+    pending_txs_found = Column(Integer, nullable = False)
 
 if __name__ == '__main__':
     engine = create_engine('sqlite:///tx.db')
