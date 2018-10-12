@@ -25,10 +25,15 @@ def _get_random_token():
 def get_file_name(url_key, arg = ''):
     return cfg.output_path + str(int(time.time())) + '_' + arg + '_' + url_key + '.json'
 
+def _add_file_timestamp(json, file_name):
+    if re.search('ether_chain.json', file_name):
+        json['file_timestamp'] = re.search('/(\d{10})_', file_name).group(1)
+    return json
+
 def get_json_from_file(file_name):
     with open(file_name) as file:
         try:
-            return json.load(file)
+            return _add_file_timestamp(json.load(file), file_name)
         except:
             return False
 
