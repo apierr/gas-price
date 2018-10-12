@@ -34,7 +34,18 @@ class Open_tx:
                     txs.append(self._get_list(tx, cls_attributes))
         return txs
 
+    def get_gas_oracle_ethchain(self):
+        rows = []
+        cls_attributes = self._get_cls_attributes(metadata_db.GasOracleEthChain)
+        print(cls_attributes)
+        for file in get_files(self.pattern + '*_ether_chain.json'):
+            json = get_json_from_file(file)
+            if json:
+                rows.append(self._get_list(json, cls_attributes))
+        return rows
+
 if __name__ == '__main__':
-    open_tx = Open_tx()
-    print(len(open_tx.get_txs()))
-    print(open_tx.get_memory_pool())
+    open = Open_tx()
+    print(len(open.get_txs()))
+    print(open.get_memory_pool())
+    print(open.get_gas_oracle_ethchain())

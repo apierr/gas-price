@@ -115,16 +115,23 @@ class EtherGasStation (Base):
     egs_fastest = Column(Numeric, nullable = True)
     egs_safeLow = Column(Numeric, nullable = True)
 
-class EtherChain (Base):
+class GasOracleEthChain (Base):
     # https://www.etherchain.org/api/gasPriceOracle (ok)
     # https://www.etherchain.org/tools/gasPriceOracle
-    __tablename__ = 'etherchain'
-    ec_id = Column(Integer, primary_key = True)
-    ec_ts = Column(Integer, nullable = False)
-    ec_safeLow = Column(Numeric, nullable = True)
+    __tablename__ = 'gasoracleethchain'
+    id = Column(Integer, primary_key = True)
+    file_timestamp = Column(Integer, nullable = False)
+    safeLow = Column(Numeric, nullable = True)
     standard = Column(Numeric, nullable = True)
-    ec_fast = Column(Numeric, nullable = True)
-    ec_fastest = Column(Numeric, nullable = True)
+    fast = Column(Numeric, nullable = True)
+    fastest = Column(Numeric, nullable = True)
+
+    def __init__(self, ts, safeLow, standard, fast, fastest):
+        self.file_timestamp = ts
+        self.safeLow = safeLow
+        self.standard = standard
+        self.fast = fast
+        self.fastest = fastest
 
 class PendingTransactionFound(Base):
     # https://etherscan.io/txsPending

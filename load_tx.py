@@ -1,4 +1,4 @@
-from metadata_db import Transaction, MemoryPool
+from metadata_db import Transaction, MemoryPool, GasOracleEthChain
 from open_tx import Open_tx
 from extract_block import Extract_block
 from session_db import get_session_db
@@ -23,8 +23,14 @@ class Load:
             if not self.session.query(MemoryPool).filter_by(height = row[0]).first():
                 self._persist_to_db(MemoryPool(*row))
 
+    def load_gas_oracle_ethchain(self, rows):
+        for row in rows:
+            if not self.session.query(GasOracleEthChain).filter_by(file_timestamp = row[0]).first():
+                self._persist_to_db(GasOracleEthChain(*row))
+
 if __name__ == '__main__':
     load = Load()
     open_tx = Open_tx()
     load.load_txs(open_tx.get_txs())
     load.load_memory_pool(open_tx.get_memory_pool())
+    load.load_gas_oracle_ethchain(open_tx.get_gas_oracle_ethchain())
