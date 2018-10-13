@@ -71,8 +71,10 @@ class Open_tx:
         cls_attributes = self._get_cls_attributes(metadata_db.PendingTransactionFound)
         print(cls_attributes)
         for file in get_files(self.pattern + '*_pending_txs_found.csv'):
-            json = get_json_from_csv_file(file)
-            print(json)
+            jsons = get_json_from_csv_file(file)
+            for json in jsons:
+                rows.append(self._get_list(json, cls_attributes))
+        return rows
 
 if __name__ == '__main__':
     open = Open_tx()
@@ -80,5 +82,5 @@ if __name__ == '__main__':
     # print(open.get_memory_pool())
     # print(open.get_gas_oracle_ethchain())
     #print(open.get_net_stats())
-    # print(open.get_pools_stats())
+    #print(open.get_pools_stats())
     print(open.get_pending_txs_found())

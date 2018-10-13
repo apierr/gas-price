@@ -1,4 +1,4 @@
-from metadata_db import Transaction, MemoryPool, GasOracleEthChain, NetworkStats, PoolsStats
+from metadata_db import Transaction, MemoryPool, GasOracleEthChain, NetworkStats, PoolsStats, PendingTransactionFound
 from open_tx import Open_tx
 from extract_block import Extract_block
 from session_db import get_session_db
@@ -38,6 +38,11 @@ class Load:
             if not self.session.query(PoolsStats).filter_by(file_timestamp = row[0]).first():
                 self._persist_to_db(PoolsStats(*row))
 
+    def load_pending_txs_found(self, rows):
+        for row in rows[1:]:
+            if not self.session.query(PendingTransactionFound).filter_by(ts = row[0]).first():
+                self._persist_to_db(PendingTransactionFound(*row))
+
 if __name__ == '__main__':
     load = Load()
     open = Open_tx()
@@ -45,4 +50,5 @@ if __name__ == '__main__':
     # load.load_memory_pool(open.get_memory_pool())
     # load.load_gas_oracle_ethchain(open.get_gas_oracle_ethchain())
     # load.load_net_stats(open.get_net_stats())
-    load.load_pools_stats(open.get_pools_stats())
+    # load.load_pools_stats(open.get_pools_stats())
+    load.load_pending_txs_found(open.get_pending_txs_found())
