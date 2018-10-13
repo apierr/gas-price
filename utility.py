@@ -28,8 +28,14 @@ def get_file_name(url_key, arg = ''):
 def get_timestamp_from_file(file_name):
     return re.search('/(\d{10})_', file_name).group(1)
 
-def get_json_from_csv_file(file_name):
-    return file_name
+def get_json_from_csv_file(file_name, fieldnames = ('ts', 'pending_txs_found')):
+    import csv
+    json = []
+    csvfile = open(file_name, 'r')
+    reader = csv.DictReader( csvfile, fieldnames)
+    for row in reader:
+        json.append(dict(row))
+    return json
 
 def get_json_from_file(file_name):
     with open(file_name) as file:
@@ -48,6 +54,12 @@ def get_url(url_key, arg = ''):
     return urls[url_key] + arg + _get_random_token()
 
 def get_unix_ts(date):
-        ts = re.sub('(\.\d{1,})?Z', '', date)
-        format = '%Y-%m-%dT%H:%M:%S'
-        return int(datetime.strptime(ts, format).strftime('%s'))
+    ts = re.sub('(\.\d{1,})?Z', '', date)
+    format = '%Y-%m-%dT%H:%M:%S'
+    return int(datetime.strptime(ts, format).strftime('%s'))
+
+# TODO remove code duplication
+def get_unix_ts_2(ts):
+    if len(ts) < 12 : ts += ' 12:00:00 AM'
+    format = '%m/%d/%Y %I:%M:%S %p'
+    return int(datetime.strptime(ts, format).strftime('%s'))
