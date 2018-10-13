@@ -54,25 +54,42 @@ class Block (Base):
         self.bck_n_tx = n_tx
 
 class NetworkStats (Base):
-    # https://api.ethpool.org/networkStats
+    # https://aqats
     __tablename__ = 'networkstats'
-    ns_id = Column(Integer, primary_key = True)
-    ns_time = Column(Integer, nullable = False)
-    ns_blockTime = Column(Numeric, nullable = False)
-    ns_difficulty = Column(Integer, nullable = False)
-    ns_hashrate = Column(Integer, nullable = False)
-    ns_usd = Column(Numeric, nullable = True)
-    ns_btc = Column(Numeric, nullable = True)
+    id = Column(Integer, primary_key = True)
+    time = Column(Integer, nullable = False, unique = True)
+    blockTime = Column(Numeric, nullable = False)
+    difficulty = Column(Integer, nullable = False)
+    hashrate = Column(Integer, nullable = False)
+    usd = Column(Numeric, nullable = True)
+    btc = Column(Numeric, nullable = True)
+
+    # For passing position arguments to the creation of the Transaction object
+    def __init__(self, time, blockTime, difficulty, hashrate, usd, btc):
+        self.time = time
+        self.blockTime = blockTime
+        self.difficulty = difficulty
+        self.hashrate = hashrate
+        self.usd = usd
+        self.btc = btc
 
 class PoolsStats (Base):
     # https://api.ethpool.org/poolStats
     __tablename__ = 'poolstats'
-    ps_id = Column(Integer, primary_key = True)
-    ps_ts = Column(Integer, nullable = False)
-    ps_hashrate = Column(Numeric, nullable = False)
+    id = Column(Integer, primary_key = True)
+    file_timestamp = Column(Integer, nullable = False)
+    hashRate = Column(Numeric, nullable = False)
     miners =  Column(Integer, nullable = False)
     workers = Column(Integer, nullable = False)
     blocksPerHour = Column(Numeric, nullable = False)
+
+    # For passing position arguments to the creation of the Transaction object
+    def __init__(self, time, hashRate, miners, workers, blocksPerHour):
+        self.file_timestamp = time
+        self.hashRate = hashRate
+        self.miners = miners
+        self.workers = workers
+        self.blocksPerHour = blocksPerHour
 
 class MemoryPool(Base):
     # https://api.blockcypher.com/v1/eth/main
@@ -120,7 +137,7 @@ class GasOracleEthChain (Base):
     # https://www.etherchain.org/tools/gasPriceOracle
     __tablename__ = 'gasoracleethchain'
     id = Column(Integer, primary_key = True)
-    file_timestamp = Column(Integer, nullable = False)
+    file_timestamp = Column(Integer, nullable = False, unique = True)
     safeLow = Column(Numeric, nullable = True)
     standard = Column(Numeric, nullable = True)
     fast = Column(Numeric, nullable = True)
@@ -139,6 +156,10 @@ class PendingTransactionFound(Base):
     id = Column(Integer, primary_key = True)
     ts = Column(Integer, nullable = False)
     pending_txs_found = Column(Integer, nullable = False)
+
+    def __init__(self, ts, pending_txs_found):
+        self.ts = ts
+        self.pending_txs_found = pending_txs_found
 
 if __name__ == '__main__':
     engine = create_engine('sqlite:///tx.db')
