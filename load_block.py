@@ -38,6 +38,6 @@ class Load_block:
 
 if __name__ == '__main__':
     load = Load_block()
-    load.load_bckId_gasUsed_into_txs()
-    # open_block = Open_block()
-    # load.load_blocks(open_block.get_blocks())
+    #load.load_bckId_gasUsed_into_txs()
+    open = Open_block()
+    load.load_blocks(open.get_blocks())

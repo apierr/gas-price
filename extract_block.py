@@ -34,8 +34,7 @@ class Extract_block:
     def download_block(self):
         url_key = 'block'
         for bck_id in self._get_txsBckId_notIn_blockTable():
-            print(get_url(url_key, bck_id), get_file_name(url_key, bck_id))
-            # download_file(get_url(url_key, bck_id), get_file_name(url_key, bck_id))
+            download_file(get_url(url_key, bck_id), get_file_name(url_key, bck_id))
 
     def get_bckId_gasUsed(self, hash):
         json = self._get_json(hash)
@@ -51,5 +50,5 @@ if __name__ == '__main__':
     hashes = extract.get_hashes_without_block_id()
     print(len(hashes))
     for hash in hashes[-1:]:
-        print(extract.get_bckId_gasUsed(hash))
+        #print(extract.get_bckId_gasUsed(hash))
         extract.download_block()
