@@ -1,4 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, Numeric, create_engine
+from sqlalchemy.dialects.mysql import BIGINT
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
@@ -9,13 +10,13 @@ Base = declarative_base()
 
 class Transaction (Base):
     # https://api.blockcypher.com/v1/eth/main/txs (ok)
-    __tablename__ = 'transaction'
+    __tablename__ = 'tx'
     id = Column(Integer, primary_key = True)
     hash = Column(String(64), unique = True)
     received = Column(Integer, nullable = False)
     gas_limit = Column(Integer, nullable = True)
     gas_price = Column(Numeric, nullable = True)
-    fees = Column(Integer, nullable = True)
+    fees = Column(BIGINT(unsigned=True), nullable = True)
     double_spend = Column(Boolean, nullable = True)
     gas_used = Column(Integer, nullable = True)
     bck_id = Column(Integer, ForeignKey('block.bck_id'), nullable = True)
