@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 from utility import get_unix_ts, get_unix_ts_2
 import re
+import config as cfg
 
 Base = declarative_base()
 
@@ -163,6 +164,6 @@ class PendingTransactionFound(Base):
         self.pending_txs_found = pending_txs_found
 
 if __name__ == '__main__':
-    engine = create_engine('sqlite:///tx.db')
+    engine = create_engine(cfg.db_url)
     Session = sessionmaker(bind = engine)
     Base.metadata.create_all(engine)
