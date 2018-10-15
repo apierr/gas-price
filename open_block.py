@@ -20,7 +20,7 @@ class Open_block:
 
     def get_blocks(self):
         blocks = []
-        cls_attributes = ['height'] + self._get_class_attributes(metadata_db.Block)
+        cls_attributes = self._get_class_attributes(metadata_db.Block)
         for file in get_files(self.pattern):
             bck = get_json_from_file(file)
             if bck:
