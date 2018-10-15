@@ -95,6 +95,7 @@ class PoolsStats (Base):
 
 class MemoryPool(Base):
     # https://api.blockcypher.com/v1/eth/main
+    # https://www.blockcypher.com/dev/ethereum/#blockchain
     __tablename__ = 'memoryPool'
     id = Column(Integer, primary_key = True)
     height = Column(Integer, nullable = False)

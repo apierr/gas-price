@@ -7,7 +7,7 @@ class Open_block:
         self.pattern = './output/*_block.json'
 
     def _get_class_attributes(self, cls):
-        return [i[4:] for i in cls.__dict__.keys() if i[:1] != '_'][1:-1]
+        return ['height', 'time', 'hash', 'prev_block', 'size', 'fees', 'total', 'n_tx']
 
     def _get_files(self):
         return glob.glob(self.pattern)
