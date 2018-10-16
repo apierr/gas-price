@@ -77,6 +77,7 @@ class NetworkStats (Base):
 
 class PoolsStats (Base):
     # https://api.ethpool.org/poolStats
+    # https://ethermine.org/api/pool#stats
     __tablename__ = 'poolstats'
     id = Column(Integer, primary_key = True)
     file_timestamp = Column(Integer, nullable = False)
@@ -121,19 +122,34 @@ class MemoryPool(Base):
 class EtherGasStation (Base):
     # https://ethgasstation.info/json/ethgasAPI.json (ok)
     __tablename__ = 'ethergasstation'
-    egs_id = Column(Integer, primary_key = True)
-    egs_ts = Column(Integer, nullable = False)
+    id = Column(Integer, primary_key = True)
+    file_timestamp = Column(Integer, nullable = False)
     average = Column(Numeric, nullable = True)
     fastestWait = Column(Numeric, nullable = True)
     fastWait = Column(Numeric, nullable = True)
-    egs_fast = Column(Numeric, nullable = True)
+    fast = Column(Numeric, nullable = True)
     safeLowWait = Column(Numeric, nullable = True)
     blockNum = Column(Numeric, nullable = True)
     avgWait = Column(Numeric, nullable = True)
     block_time = Column(Numeric, nullable = True)
     speed = Column(Numeric, nullable = True)
-    egs_fastest = Column(Numeric, nullable = True)
-    egs_safeLow = Column(Numeric, nullable = True)
+    fastest = Column(Numeric, nullable = True)
+    safeLow = Column(Numeric, nullable = True)
+
+    def __init__(self, ts, average, fastestWait, fastWait, fast, \
+        safeLowWait, blockNum, avgWait, block_time, speed, fastest, safeLow):
+        self.file_timestamp = ts
+        self.average = average
+        self.fastestWait = fastestWait
+        self.fastWait = fastWait
+        self.fast = fast
+        self.safeLowWait = safeLowWait
+        self.blockNum = blockNum
+        self.avgWait = avgWait
+        self.block_time = block_time
+        self.speed = speed
+        self.fastest = fastest
+        self.safeLow = safeLow
 
 class GasOracleEthChain (Base):
     # https://www.etherchain.org/api/gasPriceOracle (ok)
