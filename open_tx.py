@@ -20,6 +20,7 @@ class Open_tx:
         for file in get_files(self.pattern + '*_pool_stats.json'):
             json = get_json_from_file(file)
             if json:
+                json['file_timestamp'] = get_timestamp_from_file(file)
                 pool_stats.append(self._get_list(json, cls_attributes))
         return pool_stats
 
@@ -51,6 +52,7 @@ class Open_tx:
         for file in get_files(self.pattern + '*_net_stats.json'):
             json = get_json_from_file(file)
             if json and json['status'] == 'OK' and json['data']:
+                json['data']['file_timestamp'] = get_timestamp_from_file(file)
                 rows.append(self._get_list(json['data'], cls_attributes))
         return rows
 
@@ -79,7 +81,6 @@ class Open_tx:
     def get_ether_gas_stn(self):
         rows = []
         cls_attributes = self._get_cls_attributes(metadata_db.EtherGasStation)
-        print(cls_attributes)
         for file in get_files(self.pattern + '*_ether_gas_stn.json'):
             json = get_json_from_file(file)
             if json:
@@ -92,7 +93,7 @@ if __name__ == '__main__':
     # print(len(open.get_txs()))
     # print(open.get_memory_pool())
     # print(open.get_gas_oracle_ethchain())
-    #print(open.get_net_stats())
-    #print(open.get_pools_stats())
-    print(open.get_ether_gas_stn())
+    print(len(open.get_net_stats()))
+    # print(open.get_pools_stats())
+    # print(open.get_ether_gas_stn())
     #print(open.get_pending_txs_found())

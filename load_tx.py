@@ -4,6 +4,7 @@ from open_tx import Open_tx
 from extract_block import Extract_block
 from session_db import get_session_db
 from sqlalchemy import text
+from sqlalchemy.orm.exc import NoResultFound
 
 class Load:
 
@@ -21,7 +22,7 @@ class Load:
 
     def load_memory_pool(self, rows):
         for row in rows:
-            if not self.session.query(MemoryPool).filter_by(height = row[0]).first():
+            if not self.session.query(MemoryPool).filter_by(file_timestamp = row[0]).first():
                 self._persist_to_db(MemoryPool(*row))
 
     def load_gas_oracle_ethchain(self, rows):
@@ -31,7 +32,7 @@ class Load:
 
     def load_net_stats(self, rows):
         for row in rows:
-            if not self.session.query(NetworkStats).filter_by(time = row[0]).first():
+            if not self.session.query(NetworkStats).filter_by(file_timestamp = row[0]).first():
                 self._persist_to_db(NetworkStats(*row))
 
     def load_pools_stats(self, rows):
@@ -46,7 +47,9 @@ class Load:
 
     def load_ether_gas_stn(self, rows):
         for row in rows:
-            if not self.session.query(EtherGasStation).filter_by(file_timestamp = row[0]).first():
+            try:
+                self.session.query(EtherGasStation).filter_by(file_timestamp = row[0]).one()
+            except NoResultFound:
                 self._persist_to_db(EtherGasStation(*row))
 
 if __name__ == '__main__':
@@ -55,7 +58,7 @@ if __name__ == '__main__':
     # load.load_txs(open.get_txs())
     # load.load_memory_pool(open.get_memory_pool())
     # load.load_gas_oracle_ethchain(open.get_gas_oracle_ethchain())
-    # load.load_net_stats(open.get_net_stats())
+    load.load_net_stats(open.get_net_stats())
     # load.load_pools_stats(open.get_pools_stats())
-    load.load_ether_gas_stn(open.get_ether_gas_stn())
+    # load.load_ether_gas_stn(open.get_ether_gas_stn())
     #load.load_pending_txs_found(open.get_pending_txs_found())

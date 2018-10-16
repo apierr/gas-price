@@ -59,7 +59,8 @@ class NetworkStats (Base):
     # https://aqats
     __tablename__ = 'networkstats'
     id = Column(Integer, primary_key = True)
-    time = Column(Integer, nullable = False, unique = True)
+    file_timestamp = Column(Integer, unique = True)
+    time = Column(Integer, nullable = False)
     blockTime = Column(Numeric, nullable = False)
     difficulty = Column(Integer, nullable = False)
     hashrate = Column(Integer, nullable = False)
@@ -67,7 +68,8 @@ class NetworkStats (Base):
     btc = Column(Numeric, nullable = True)
 
     # For passing position arguments to the creation of the Transaction object
-    def __init__(self, time, blockTime, difficulty, hashrate, usd, btc):
+    def __init__(self, file_timestamp, time, blockTime, difficulty, hashrate, usd, btc):
+        self.file_timestamp = file_timestamp
         self.time = time
         self.blockTime = blockTime
         self.difficulty = difficulty
@@ -99,6 +101,7 @@ class MemoryPool(Base):
     # https://www.blockcypher.com/dev/ethereum/#blockchain
     __tablename__ = 'memoryPool'
     id = Column(Integer, primary_key = True)
+    file_timestamp = Column(Integer, unique = True)
     height = Column(Integer, nullable = False)
     time = Column(Integer, nullable = False)
     unconfirmed_count = Column(Integer, nullable = False)
@@ -109,7 +112,8 @@ class MemoryPool(Base):
     peer_count = Column(Integer, nullable = False)
 
     # For passing position arguments to the creation of the Transaction object
-    def __init__(self, height, time, unc_count, h_gprice, m_gprice, l_gprice, lfork, pcount):
+    def __init__(self, file_timestamp, height, time, unc_count, h_gprice, m_gprice, l_gprice, lfork, pcount):
+        self.file_timestamp = file_timestamp
         self.height = height
         self.time = get_unix_ts(time)
         self.unconfirmed_count = unc_count
@@ -123,7 +127,7 @@ class EtherGasStation (Base):
     # https://ethgasstation.info/json/ethgasAPI.json (ok)
     __tablename__ = 'ethergasstation'
     id = Column(Integer, primary_key = True)
-    file_timestamp = Column(Integer, nullable = False)
+    file_timestamp = Column(Integer, unique = True)
     average = Column(Numeric, nullable = True)
     fastestWait = Column(Numeric, nullable = True)
     fastWait = Column(Numeric, nullable = True)
@@ -138,6 +142,7 @@ class EtherGasStation (Base):
 
     def __init__(self, ts, average, fastestWait, fastWait, fast, \
         safeLowWait, blockNum, avgWait, block_time, speed, fastest, safeLow):
+        print('ts....###', ts)
         self.file_timestamp = ts
         self.average = average
         self.fastestWait = fastestWait
