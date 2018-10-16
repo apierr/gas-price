@@ -9,7 +9,8 @@ from utility import get_url, download_file, get_file_name, get_url
 class Extract_block:
 
     def __init__(self):
-        self.bckId_gasUsed_keys = ['hash', 'block_height', 'gas_used']
+        self.tx_arges = ['hash', 'block_height', 'gas_used']
+        self.block_args = ['height', 'time', 'hash', 'prev_block', 'size', 'fees', 'total', 'n_tx']
 
     def _get_json(self, hash):
         print(get_url('transaction', hash))
@@ -18,27 +19,27 @@ class Extract_block:
                 return json.loads(url.read().decode())
         except:
             default_values = [hash, 0, None]
-            return dict(zip(self.bckId_gasUsed_keys, default_values))
+            return dict(zip(self.tx_arges, default_values))
 
+    def _get_json_block(self, bck_id):
+        print('block_height: ', bck_id, '\n', get_url('block', bck_id))
+        try:
+            with urllib.request.urlopen(get_url('block', bck_id)) as url:
+                return json.loads(url.read().decode())
+        except:
+            print('#####Error in extractin block', bck_id, get_url('block', bck_id))
 
-    def _get_subprocess_args(self, arg):
-        return ['wget', get_url('block', arg), '-O', self._get_file_name('block')]
+    def is_block_in_blockTbl(self, bckId):
+        return get_session_db().query(Block.bck_id)\
+            .filter(Block.bck_id == bckId).first()
 
-    def _get_txsBckId_notIn_blockTable(self):
-        subquery = get_session_db().query(Block.bck_id)
-        query = get_session_db().query(Transaction.bck_id) \
-            .filter(Transaction.bck_id > 0) \
-            .filter(Transaction.bck_id.notin_(subquery)).distinct().all()
-        return [ str(col[0]) for col in query]
-
-    def download_block(self):
-        url_key = 'block'
-        for bck_id in self._get_txsBckId_notIn_blockTable():
-            download_file(get_url(url_key, bck_id), get_file_name(url_key, bck_id))
-
-    def get_bckId_gasUsed(self, hash):
+    def get_gasUsed(self, hash):
         json = self._get_json(hash)
-        return {key: json.get(key) for key in self.bckId_gasUsed_keys}
+        return {key: json.get(key) for key in self.tx_arges}
+
+    def get_block(self, bkc_id):
+        json = self._get_json_block(str(bkc_id))
+        return [json[i] for i in  self.block_args]
 
     def get_hashes_without_block_id(self):
         return [ col[0] for col in get_session_db().query(Transaction.hash) \
@@ -49,6 +50,3 @@ if __name__ == '__main__':
     extract = Extract_block()
     hashes = extract.get_hashes_without_block_id()
     print(len(hashes))
-    for hash in hashes[-1:]:
-        #print(extract.get_bckId_gasUsed(hash))
-        extract.download_block()
