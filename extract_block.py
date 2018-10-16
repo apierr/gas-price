@@ -45,7 +45,6 @@ class Extract_block:
         return [ col[0] for col in get_session_db().query(Transaction.hash) \
             .filter(Transaction.bck_id.is_(None)).all() ]
 
-
 if __name__ == '__main__':
     extract = Extract_block()
     hashes = extract.get_hashes_without_block_id()
