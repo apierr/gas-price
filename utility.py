@@ -1,8 +1,8 @@
 #utility.py
 from random import randint
-from datetime import datetime
 import config as cfg
 import json, glob, time, subprocess, re
+import dateutil.parser
 
 urls = {
     'transaction': 'https://api.blockcypher.com/v1/eth/main/txs/',
@@ -53,13 +53,7 @@ def get_files(pattern):
 def get_url(url_key, arg = ''):
     return urls[url_key] + arg + _get_random_token()
 
+## TODO it gives different timestamp based on system CEST vs UTC
 def get_unix_ts(date):
-    ts = re.sub('(\.\d{1,})?Z', '', date)
-    format = '%Y-%m-%dT%H:%M:%S'
-    return int(datetime.strptime(ts, format).strftime('%s'))
-
-# TODO remove code duplication
-def get_unix_ts_2(ts):
-    if len(ts) < 12 : ts += ' 12:00:00 AM'
-    format = '%m/%d/%Y %I:%M:%S %p'
-    return int(datetime.strptime(ts, format).strftime('%s'))
+    dt = dateutil.parser.parse(date)
+    return int(time.mktime(dt.timetuple()))

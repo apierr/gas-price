@@ -3,7 +3,7 @@ from sqlalchemy.dialects.mysql import BIGINT
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
-from utility import get_unix_ts, get_unix_ts_2
+from utility import get_unix_ts
 import re
 import config as cfg
 
@@ -183,7 +183,7 @@ class PendingTransactionFound(Base):
     pending_txs_found = Column(Integer, nullable = False)
 
     def __init__(self, ts, pending_txs_found):
-        self.ts = get_unix_ts_2(ts) # '%m/%d/%Y %I:%M:%S %p'
+        self.ts = get_unix_ts(ts) # '%m/%d/%Y %I:%M:%S %p'
         self.pending_txs_found = pending_txs_found
 
 if __name__ == '__main__':
