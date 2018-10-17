@@ -13,6 +13,9 @@ class Open_tx:
     def _get_list(self, json, attributes):
         return list(filter(None.__ne__, [json.get(i, None) for i in attributes]))
 
+    def _get_dict(self, json, attributes):
+        return {i : json.get(i, None) for i in attributes}
+
     def get_memory_pool(self):
         pool_stats = []
         cls_attributes = self._get_cls_attributes(metadata_db.MemoryPool)
@@ -53,7 +56,7 @@ class Open_tx:
             json = get_json_from_file(file)
             if json and json['status'] == 'OK' and json['data']:
                 json['data']['file_timestamp'] = get_timestamp_from_file(file)
-                rows.append(self._get_list(json['data'], cls_attributes))
+                rows.append(self._get_dict(json['data'], cls_attributes))
         return rows
 
     def get_pools_stats(self):

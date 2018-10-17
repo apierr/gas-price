@@ -32,8 +32,8 @@ class Load:
 
     def load_net_stats(self, rows):
         for row in rows:
-            if not self.session.query(NetworkStats).filter_by(file_timestamp = row[0]).first():
-                self._persist_to_db(NetworkStats(*row))
+            if not self.session.query(NetworkStats).filter_by(file_timestamp = row['file_timestamp']).first():
+                self._persist_to_db(NetworkStats(**row))
 
     def load_pools_stats(self, rows):
         for row in rows:

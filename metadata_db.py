@@ -33,6 +33,7 @@ class Transaction (Base):
 
 class Block (Base):
     # https://api.blockcypher.com/v1/eth/main/blocks/7
+    # https://www.blockcypher.com/dev/ethereum/#block
     __tablename__ = 'block'
     bck_id = Column(Integer, primary_key = True)
     bck_time = Column(Integer, nullable = False)
@@ -68,14 +69,14 @@ class NetworkStats (Base):
     btc = Column(Numeric, nullable = True)
 
     # For passing position arguments to the creation of the Transaction object
-    def __init__(self, file_timestamp, time, blockTime, difficulty, hashrate, usd, btc):
-        self.file_timestamp = file_timestamp
-        self.time = time
-        self.blockTime = blockTime
-        self.difficulty = difficulty
-        self.hashrate = hashrate
-        self.usd = usd
-        self.btc = btc
+    def __init__(self, **kwargs):
+        self.file_timestamp = kwargs['file_timestamp']
+        self.time = kwargs['time']
+        self.blockTime = kwargs['blockTime']
+        self.difficulty = kwargs['difficulty']
+        self.hashrate = kwargs['hashrate']
+        self.usd = kwargs['usd']
+        self.btc = kwargs['btc']
 
 class PoolsStats (Base):
     # https://api.ethpool.org/poolStats
