@@ -15,50 +15,45 @@ class Load:
         self.session.merge(row)
         self.session.commit()
 
+    def _persist_rows_to_db(self, rows, table):
+        for row in rows:
+            try:
+                self.session.query(table).filter_by(file_timestamp = row['file_timestamp']).one()
+            except NoResultFound:
+                self._persist_to_db(table(**row))
+
     def load_txs(self, rows):
         for row in rows:
-            if not self.session.query(Transaction).filter_by(hash = row[0]).first():
-                self._persist_to_db(Transaction(*row))
-
-    def load_memory_pool(self, rows):
-        for row in rows:
-            if not self.session.query(MemoryPool).filter_by(file_timestamp = row[0]).first():
-                self._persist_to_db(MemoryPool(*row))
-
-    def load_gas_oracle_ethchain(self, rows):
-        for row in rows:
-            if not self.session.query(GasOracleEthChain).filter_by(file_timestamp = row[0]).first():
-                self._persist_to_db(GasOracleEthChain(*row))
-
-    def load_net_stats(self, rows):
-        for row in rows:
-            if not self.session.query(NetworkStats).filter_by(file_timestamp = row['file_timestamp']).first():
-                self._persist_to_db(NetworkStats(**row))
-
-    def load_pools_stats(self, rows):
-        for row in rows:
-            if not self.session.query(PoolsStats).filter_by(file_timestamp = row[0]).first():
-                self._persist_to_db(PoolsStats(*row))
+            if not self.session.query(Transaction).filter_by(hash = row['hash']).first():
+                self._persist_to_db(Transaction(**row))
 
     def load_pending_txs_found(self, rows):
         for row in rows[1:]:
             if not self.session.query(PendingTransactionFound).filter_by(ts = row[0]).first():
                 self._persist_to_db(PendingTransactionFound(*row))
 
+    def load_memory_pool(self, rows):
+        self._persist_rows_to_db(rows, MemoryPool)
+
+    def load_pools_stats(self, rows):
+        self._persist_rows_to_db(rows, PoolsStats)
+
     def load_ether_gas_stn(self, rows):
-        for row in rows:
-            try:
-                self.session.query(EtherGasStation).filter_by(file_timestamp = row[0]).one()
-            except NoResultFound:
-                self._persist_to_db(EtherGasStation(*row))
+        self._persist_rows_to_db(rows, EtherGasStation)
+
+    def load_gas_oracle_ethchain(self, rows):
+        self._persist_rows_to_db(rows, GasOracleEthChain)
+
+    def load_net_stats(self, rows):
+        self._persist_rows_to_db(rows, NetworkStats)
 
 if __name__ == '__main__':
     load = Load()
     open = Open_tx()
-    # load.load_txs(open.get_txs())
+    load.load_txs(open.get_txs())
     # load.load_memory_pool(open.get_memory_pool())
     # load.load_gas_oracle_ethchain(open.get_gas_oracle_ethchain())
-    load.load_net_stats(open.get_net_stats())
+    # load.load_net_stats(open.get_net_stats())
     # load.load_pools_stats(open.get_pools_stats())
     # load.load_ether_gas_stn(open.get_ether_gas_stn())
-    #load.load_pending_txs_found(open.get_pending_txs_found())
+    # load.load_pending_txs_found(open.get_pending_txs_found())

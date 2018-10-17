@@ -13,6 +13,7 @@ class Transaction (Base):
     # https://api.blockcypher.com/v1/eth/main/txs (ok)
     __tablename__ = 'tx'
     id = Column(Integer, primary_key = True)
+    file_timestamp = Column(Integer)
     hash = Column(String(64), unique = True)
     received = Column(Integer, nullable = False)
     gas_limit = Column(Integer, nullable = True)
@@ -23,13 +24,14 @@ class Transaction (Base):
     bck_id = Column(Integer, ForeignKey('block.bck_id'), nullable = True)
 
     # For passing position arguments to the creation of the Transaction object
-    def __init__(self, hash, ts, gas_limit, gas_price, fees, double_spend):
-        self.hash = hash
-        self.received = get_unix_ts(ts)
-        self.gas_limit = gas_limit
-        self.gas_price = gas_price
-        self.fees = fees
-        self.double_spend = double_spend
+    def __init__(self, **kwargs):
+        self.hash = kwargs['hash']
+        self.file_timestamp = kwargs['file_timestamp']
+        self.received = get_unix_ts(kwargs['received'])
+        self.gas_limit = kwargs['gas_limit']
+        self.gas_price = kwargs['gas_price']
+        self.fees = kwargs['fees']
+        self.double_spend = kwargs['double_spend']
 
 class Block (Base):
     # https://api.blockcypher.com/v1/eth/main/blocks/7
@@ -90,12 +92,12 @@ class PoolsStats (Base):
     blocksPerHour = Column(Numeric, nullable = False)
 
     # For passing position arguments to the creation of the Transaction object
-    def __init__(self, time, hashRate, miners, workers, blocksPerHour):
-        self.file_timestamp = time
-        self.hashRate = hashRate
-        self.miners = miners
-        self.workers = workers
-        self.blocksPerHour = blocksPerHour
+    def __init__(self, **kwargs):
+        self.file_timestamp = kwargs['file_timestamp']
+        self.hashRate = kwargs['hashRate']
+        self.miners = kwargs['miners']
+        self.workers = kwargs['workers']
+        self.blocksPerHour = kwargs['blocksPerHour']
 
 class MemoryPool(Base):
     # https://api.blockcypher.com/v1/eth/main
@@ -113,16 +115,16 @@ class MemoryPool(Base):
     peer_count = Column(Integer, nullable = False)
 
     # For passing position arguments to the creation of the Transaction object
-    def __init__(self, file_timestamp, height, time, unc_count, h_gprice, m_gprice, l_gprice, lfork, pcount):
-        self.file_timestamp = file_timestamp
-        self.height = height
-        self.time = get_unix_ts(time)
-        self.unconfirmed_count = unc_count
-        self.high_gas_price = h_gprice
-        self.medium_gas_price = m_gprice
-        self.low_gas_price = l_gprice
-        self.last_fork_height = lfork
-        self.peer_count = pcount
+    def __init__(self, **kwargs):
+        self.file_timestamp = kwargs['file_timestamp']
+        self.height = kwargs['height']
+        self.time = get_unix_ts(kwargs['time'])
+        self.unconfirmed_count = kwargs['unconfirmed_count']
+        self.high_gas_price = kwargs['high_gas_price']
+        self.medium_gas_price = kwargs['medium_gas_price']
+        self.low_gas_price = kwargs['low_gas_price']
+        self.last_fork_height = kwargs['last_fork_height']
+        self.peer_count = kwargs['peer_count']
 
 class EtherGasStation (Base):
     # https://ethgasstation.info/json/ethgasAPI.json (ok)
@@ -141,21 +143,19 @@ class EtherGasStation (Base):
     fastest = Column(Numeric, nullable = True)
     safeLow = Column(Numeric, nullable = True)
 
-    def __init__(self, ts, average, fastestWait, fastWait, fast, \
-        safeLowWait, blockNum, avgWait, block_time, speed, fastest, safeLow):
-        print('ts....###', ts)
-        self.file_timestamp = ts
-        self.average = average
-        self.fastestWait = fastestWait
-        self.fastWait = fastWait
-        self.fast = fast
-        self.safeLowWait = safeLowWait
-        self.blockNum = blockNum
-        self.avgWait = avgWait
-        self.block_time = block_time
-        self.speed = speed
-        self.fastest = fastest
-        self.safeLow = safeLow
+    def __init__(self, **kwargs):
+        self.file_timestamp = kwargs['file_timestamp']
+        self.average = kwargs['average']
+        self.fastestWait = kwargs['fastestWait']
+        self.fastWait = kwargs['fastWait']
+        self.fast = kwargs['fast']
+        self.safeLowWait = kwargs['safeLowWait']
+        self.blockNum = kwargs['blockNum']
+        self.avgWait = kwargs['avgWait']
+        self.block_time = kwargs['block_time']
+        self.speed = kwargs['speed']
+        self.fastest = kwargs['fastest']
+        self.safeLow = kwargs['safeLow']
 
 class GasOracleEthChain (Base):
     # https://www.etherchain.org/api/gasPriceOracle (ok)
@@ -168,12 +168,12 @@ class GasOracleEthChain (Base):
     fast = Column(Numeric, nullable = True)
     fastest = Column(Numeric, nullable = True)
 
-    def __init__(self, ts, safeLow, standard, fast, fastest):
-        self.file_timestamp = ts
-        self.safeLow = safeLow
-        self.standard = standard
-        self.fast = fast
-        self.fastest = fastest
+    def __init__(self, **kwargs):
+        self.file_timestamp = kwargs['file_timestamp']
+        self.safeLow = kwargs['safeLow']
+        self.standard = kwargs['standard']
+        self.fast = kwargs['fast']
+        self.fastest = kwargs['fastest']
 
 class PendingTransactionFound(Base):
     # https://etherscan.io/txsPending
