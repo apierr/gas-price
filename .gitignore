@@ -5,3 +5,6 @@ __pycache__
 *.zip
 *pyc
 *config.py
+*.csv
+*.sh
+*.sql
