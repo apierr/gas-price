@@ -3,15 +3,22 @@ from sqlalchemy.dialects.mysql import BIGINT
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
-from utility import get_unix_ts
+from utility import get_unix_ts, Structure
 import re
 import config as cfg
+from sqlalchemy.ext.declarative.api import DeclarativeMeta
+from utility import StructMeta
 
 Base = declarative_base()
 
-class Transaction (Base):
+class FinalMeta(DeclarativeMeta, StructMeta):
+    print(type(Base), type(Structure))
+
+class Transaction (Base, Structure, metaclass = FinalMeta):
     # https://api.blockcypher.com/v1/eth/main/txs (ok)
     __tablename__ = 'tx'
+    __fields__ = ['hash', 'file_timestamp', 
+    'received', 'gas_limit', 'gas_price', 'fees', 'double_spend']
     id = Column(Integer, primary_key = True)
     file_timestamp = Column(Integer)
     hash = Column(String(64), unique = True)
@@ -24,14 +31,8 @@ class Transaction (Base):
     bck_id = Column(Integer, ForeignKey('block.bck_id'), nullable = True)
 
     # For passing position arguments to the creation of the Transaction object
-    def __init__(self, **kwargs):
-        self.hash = kwargs['hash']
-        self.file_timestamp = kwargs['file_timestamp']
-        self.received = get_unix_ts(kwargs['received'])
-        self.gas_limit = kwargs['gas_limit']
-        self.gas_price = kwargs['gas_price']
-        self.fees = kwargs['fees']
-        self.double_spend = kwargs['double_spend']
+    def __init__(self, *args, **kwargs):
+        Structure.__init__(self, *args, **kwargs)
 
 class Block (Base):
     # https://api.blockcypher.com/v1/eth/main/blocks/7
@@ -99,10 +100,12 @@ class PoolsStats (Base):
         self.workers = kwargs['workers']
         self.blocksPerHour = kwargs['blocksPerHour']
 
-class MemoryPool(Base):
+class MemoryPool(Base, Structure, metaclass = FinalMeta):
     # https://api.blockcypher.com/v1/eth/main
     # https://www.blockcypher.com/dev/ethereum/#blockchain
     __tablename__ = 'memoryPool'
+    __fields__ = ['file_timestamp', 'height', 'time', 'unconfirmed_count', 'peer_count',
+    'high_gas_price', 'medium_gas_price', 'low_gas_price', 'last_fork_height']
     id = Column(Integer, primary_key = True)
     file_timestamp = Column(Integer, unique = True)
     height = Column(Integer, nullable = False)
@@ -115,16 +118,8 @@ class MemoryPool(Base):
     peer_count = Column(Integer, nullable = False)
 
     # For passing position arguments to the creation of the Transaction object
-    def __init__(self, **kwargs):
-        self.file_timestamp = kwargs['file_timestamp']
-        self.height = kwargs['height']
-        self.time = get_unix_ts(kwargs['time'])
-        self.unconfirmed_count = kwargs['unconfirmed_count']
-        self.high_gas_price = kwargs['high_gas_price']
-        self.medium_gas_price = kwargs['medium_gas_price']
-        self.low_gas_price = kwargs['low_gas_price']
-        self.last_fork_height = kwargs['last_fork_height']
-        self.peer_count = kwargs['peer_count']
+    def __init__(self, *args, **kwargs):
+        Structure.__init__(self, *args, **kwargs)
 
 class EtherGasStation (Base):
     # https://ethgasstation.info/json/ethgasAPI.json (ok)

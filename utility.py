@@ -1,8 +1,28 @@
 #utility.py
 from random import randint
+from inspect import Parameter, Signature
 import config as cfg
 import json, glob, time, subprocess, re
 import dateutil.parser
+
+class StructMeta(type):
+    def __new__(cls, name, bases, dict):
+        clsobj = super().__new__(cls, name, bases, dict)
+        sig = cls.make_signature(clsobj.__fields__)
+        setattr(clsobj, '__signature__', sig)
+        return clsobj
+
+    def make_signature(names):
+        return Signature(
+            Parameter(v, Parameter.POSITIONAL_OR_KEYWORD) for v in names
+        )
+
+class Structure(metaclass = StructMeta):
+    __fields__ = []
+    def __init__(self, *args, **kwargs):
+        bond = self.__signature__.bind(*args, **kwargs)
+        for name, val in bond.arguments.items():
+            setattr(self, name, val)
 
 urls = {
     'transaction': 'https://api.blockcypher.com/v1/eth/main/txs/',
