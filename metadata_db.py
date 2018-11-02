@@ -59,9 +59,10 @@ class Block (Base):
         self.bck_total = total
         self.bck_n_tx = n_tx
 
-class NetworkStats (Base):
+class NetStats (Base, Structure, metaclass = FinalMeta):
     # https://aqats
-    __tablename__ = 'networkstats'
+    __tablename__ = 'netStats'
+    __fields__ = ['file_timestamp', 'time', 'blockTime', 'difficulty', 'hashrate', 'usd', 'btc']
     id = Column(Integer, primary_key = True)
     file_timestamp = Column(Integer, unique = True)
     time = Column(Integer, nullable = False)
@@ -72,19 +73,14 @@ class NetworkStats (Base):
     btc = Column(Numeric, nullable = True)
 
     # For passing position arguments to the creation of the Transaction object
-    def __init__(self, **kwargs):
-        self.file_timestamp = kwargs['file_timestamp']
-        self.time = kwargs['time']
-        self.blockTime = kwargs['blockTime']
-        self.difficulty = kwargs['difficulty']
-        self.hashrate = kwargs['hashrate']
-        self.usd = kwargs['usd']
-        self.btc = kwargs['btc']
+    def __init__(self, *args, **kwargs):
+        Structure.__init__(self, *args, **kwargs)
 
-class PoolsStats (Base):
+class PoolsStats (Base, Structure, metaclass = FinalMeta):
     # https://api.ethpool.org/poolStats
     # https://ethermine.org/api/pool#stats
-    __tablename__ = 'poolstats'
+    __tablename__ = 'poolsStats'
+    __fields__ = ['file_timestamp', 'hashRate', 'miners', 'workers', 'blocksPerHour']
     id = Column(Integer, primary_key = True)
     file_timestamp = Column(Integer, nullable = False)
     hashRate = Column(Numeric, nullable = False)
@@ -93,12 +89,8 @@ class PoolsStats (Base):
     blocksPerHour = Column(Numeric, nullable = False)
 
     # For passing position arguments to the creation of the Transaction object
-    def __init__(self, **kwargs):
-        self.file_timestamp = kwargs['file_timestamp']
-        self.hashRate = kwargs['hashRate']
-        self.miners = kwargs['miners']
-        self.workers = kwargs['workers']
-        self.blocksPerHour = kwargs['blocksPerHour']
+    def __init__(self, *args, **kwargs):
+        Structure.__init__(self, *args, **kwargs)
 
 class MemoryPool(Base, Structure, metaclass = FinalMeta):
     # https://api.blockcypher.com/v1/eth/main
@@ -121,9 +113,11 @@ class MemoryPool(Base, Structure, metaclass = FinalMeta):
     def __init__(self, *args, **kwargs):
         Structure.__init__(self, *args, **kwargs)
 
-class EtherGasStation (Base):
+class EtherGasStation (Base, Structure, metaclass = FinalMeta):
     # https://ethgasstation.info/json/ethgasAPI.json (ok)
-    __tablename__ = 'ethergasstation'
+    __tablename__ = 'etherGasStation'
+    __fields__ = ['file_timestamp', 'average', 'fastestWait', 'fastWait', 'fast',
+    'safeLowWait', 'blockNum', 'avgWait', 'block_time', 'speed', 'fastest', 'safeLow']
     id = Column(Integer, primary_key = True)
     file_timestamp = Column(Integer, unique = True)
     average = Column(Numeric, nullable = True)
@@ -131,31 +125,21 @@ class EtherGasStation (Base):
     fastWait = Column(Numeric, nullable = True)
     fast = Column(Numeric, nullable = True)
     safeLowWait = Column(Numeric, nullable = True)
-    blockNum = Column(Numeric, nullable = True)
+    blockNum = Column(Integer, nullable = True)
     avgWait = Column(Numeric, nullable = True)
     block_time = Column(Numeric, nullable = True)
     speed = Column(Numeric, nullable = True)
     fastest = Column(Numeric, nullable = True)
     safeLow = Column(Numeric, nullable = True)
 
-    def __init__(self, **kwargs):
-        self.file_timestamp = kwargs['file_timestamp']
-        self.average = kwargs['average']
-        self.fastestWait = kwargs['fastestWait']
-        self.fastWait = kwargs['fastWait']
-        self.fast = kwargs['fast']
-        self.safeLowWait = kwargs['safeLowWait']
-        self.blockNum = kwargs['blockNum']
-        self.avgWait = kwargs['avgWait']
-        self.block_time = kwargs['block_time']
-        self.speed = kwargs['speed']
-        self.fastest = kwargs['fastest']
-        self.safeLow = kwargs['safeLow']
+    def __init__(self, *args, **kwargs):
+        Structure.__init__(self, *args, **kwargs)
 
-class GasOracleEthChain (Base):
+class OracleEthChain(Base, Structure, metaclass = FinalMeta):
     # https://www.etherchain.org/api/gasPriceOracle (ok)
     # https://www.etherchain.org/tools/gasPriceOracle
-    __tablename__ = 'gasoracleethchain'
+    __tablename__ = 'oracleEthchain'
+    __fields__ = ['file_timestamp', 'safeLow', 'standard', 'fast', 'fastest']
     id = Column(Integer, primary_key = True)
     file_timestamp = Column(Integer, nullable = False, unique = True)
     safeLow = Column(Numeric, nullable = True)
@@ -163,12 +147,8 @@ class GasOracleEthChain (Base):
     fast = Column(Numeric, nullable = True)
     fastest = Column(Numeric, nullable = True)
 
-    def __init__(self, **kwargs):
-        self.file_timestamp = kwargs['file_timestamp']
-        self.safeLow = kwargs['safeLow']
-        self.standard = kwargs['standard']
-        self.fast = kwargs['fast']
-        self.fastest = kwargs['fastest']
+    def __init__(self, *args, **kwargs):
+        Structure.__init__(self, *args, **kwargs)
 
 class PendingTransactionFound(Base):
     # https://etherscan.io/txsPending
