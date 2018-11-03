@@ -1,6 +1,6 @@
 from metadata_db import Block, Transaction
 from extract_block import Extract_block
-from session_db import get_session_db
+from utility import get_session_db
 
 class Load_block:
 
@@ -8,10 +8,9 @@ class Load_block:
         self.session = get_session_db()
 
     def _load_block(self, args):
-        if not self.session.query(Block).filter_by(bck_id = args[0]).first():
-            print('# Loading block height in block table', args[0], '\n\n')
-            bck = Block(*args)
-            self.session.merge(bck)
+        if not self.session.query(Block).filter_by(height = args['height']).first():
+            print('# Loading block height in block table', args['height'], '\n')
+            self.session.merge(Block(**args))
             self.session.commit()
 
     def _load_txGasUsed(self, args):

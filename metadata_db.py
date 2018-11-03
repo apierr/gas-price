@@ -1,15 +1,32 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, Numeric, create_engine
 from sqlalchemy.dialects.mysql import BIGINT
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative.api import DeclarativeMeta
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
-from utility import get_unix_ts, Structure
-import re
+from inspect import Parameter, Signature
 import config as cfg
-from sqlalchemy.ext.declarative.api import DeclarativeMeta
-from utility import StructMeta
 
 Base = declarative_base()
+
+class StructMeta(type):
+    def __new__(cls, name, bases, dict):
+        clsobj = super().__new__(cls, name, bases, dict)
+        sig = cls.make_signature(clsobj.__fields__)
+        setattr(clsobj, '__signature__', sig)
+        return clsobj
+
+    def make_signature(names):
+        return Signature(
+            Parameter(v, Parameter.POSITIONAL_OR_KEYWORD) for v in names
+        )
+
+class Structure(metaclass = StructMeta):
+    __fields__ = []
+    def __init__(self, *args, **kwargs):
+        bond = self.__signature__.bind(*args, **kwargs)
+        for name, val in bond.arguments.items():
+            setattr(self, name, val)
 
 class FinalMeta(DeclarativeMeta, StructMeta):
     print(type(Base), type(Structure))
@@ -25,41 +42,33 @@ class Transaction (Base, Structure, metaclass = FinalMeta):
     received = Column(Integer, nullable = False)
     gas_limit = Column(Integer, nullable = True)
     gas_price = Column(Numeric, nullable = True)
-    fees = Column(BIGINT(unsigned=True), nullable = True)
+    fees = Column(BIGINT(unsigned = True), nullable = True)
     double_spend = Column(Boolean, nullable = True)
     gas_used = Column(Integer, nullable = True)
-    bck_id = Column(Integer, ForeignKey('block.bck_id'), nullable = True)
+    bck_id = Column(Integer, ForeignKey('block.height'), nullable = True)
 
     # For passing position arguments to the creation of the Transaction object
     def __init__(self, *args, **kwargs):
         Structure.__init__(self, *args, **kwargs)
 
-class Block (Base):
+class Block (Base, Structure, metaclass = FinalMeta):
     # https://api.blockcypher.com/v1/eth/main/blocks/7
     # https://www.blockcypher.com/dev/ethereum/#block
     __tablename__ = 'block'
-    bck_id = Column(Integer, primary_key = True)
-    bck_time = Column(Integer, nullable = False)
-    bck_hash = Column(String(64), nullable = False, unique = True)
-    bcl_prev_block = Column(String(64), nullable = True, unique = True)
-    bck_size = Column(Integer, nullable = True)
-    bck_fees = Column(Integer, nullable = True)
-    bkc_total = Column(Integer, nullable = True)
-    bck_n_tx = Column(Integer, nullable = True)
-    bck_reward = Column(Integer, nullable = True)
+    __fields__ = ['height', 'time', 'prev_block', 'size', 'fees', 'total', 'n_tx']
+    id = Column(Integer, primary_key = True)
+    height = Column(Integer)
+    time = Column(Integer, nullable = False)
+    prev_block = Column(String(64), nullable = True, unique = True)
+    size = Column(Integer, nullable = True)
+    fees = Column(Numeric, nullable = True)
+    total = Column(Numeric, nullable = True)
+    n_tx = Column(Integer, nullable = True)
 
-    # For passing position arguments to the creation of the Transaction object
-    def __init__(self, height, time, hash, prev_block, size, fees, total, n_tx):
-        self.bck_id = height
-        self.bck_time = get_unix_ts(time)
-        self.bck_hash = hash
-        self.bck_prev_block = prev_block
-        self.bck_size = size
-        self.bck_fees = fees
-        self.bck_total = total
-        self.bck_n_tx = n_tx
+    def __init__(self, *args, **kwargs):
+        Structure.__init__(self, *args, **kwargs)
 
-class NetStats (Base, Structure, metaclass = FinalMeta):
+class NetStats(Base, Structure, metaclass = FinalMeta):
     # https://aqats
     __tablename__ = 'netStats'
     __fields__ = ['file_timestamp', 'time', 'blockTime', 'difficulty', 'hashrate', 'usd', 'btc']
@@ -72,7 +81,6 @@ class NetStats (Base, Structure, metaclass = FinalMeta):
     usd = Column(Numeric, nullable = True)
     btc = Column(Numeric, nullable = True)
 
-    # For passing position arguments to the creation of the Transaction object
     def __init__(self, *args, **kwargs):
         Structure.__init__(self, *args, **kwargs)
 
@@ -88,7 +96,6 @@ class PoolsStats (Base, Structure, metaclass = FinalMeta):
     workers = Column(Integer, nullable = False)
     blocksPerHour = Column(Numeric, nullable = False)
 
-    # For passing position arguments to the creation of the Transaction object
     def __init__(self, *args, **kwargs):
         Structure.__init__(self, *args, **kwargs)
 
@@ -109,7 +116,6 @@ class MemoryPool(Base, Structure, metaclass = FinalMeta):
     last_fork_height = Column(Integer, nullable = False)
     peer_count = Column(Integer, nullable = False)
 
-    # For passing position arguments to the creation of the Transaction object
     def __init__(self, *args, **kwargs):
         Structure.__init__(self, *args, **kwargs)
 
@@ -150,16 +156,16 @@ class OracleEthChain(Base, Structure, metaclass = FinalMeta):
     def __init__(self, *args, **kwargs):
         Structure.__init__(self, *args, **kwargs)
 
-class PendingTransactionFound(Base):
+# class PendingTransactionFound(Base):
     # https://etherscan.io/txsPending
-    __tablename__ = 'pendingtxsfound'
-    id = Column(Integer, primary_key = True)
-    ts = Column(Integer, nullable = False)
-    pending_txs_found = Column(Integer, nullable = False)
+    # __tablename__ = 'pendingtxsfound'
+    # id = Column(Integer, primary_key = True)
+    # ts = Column(Integer, nullable = False)
+    # pending_txs_found = Column(Integer, nullable = False)
 
-    def __init__(self, ts, pending_txs_found):
-        self.ts = get_unix_ts(ts) # '%m/%d/%Y %I:%M:%S %p'
-        self.pending_txs_found = pending_txs_found
+    # def __init__(self, ts, pending_txs_found):
+        # self.ts = get_unix_ts(ts) # '%m/%d/%Y %I:%M:%S %p'
+        # self.pending_txs_found = pending_txs_found
 
 if __name__ == '__main__':
     engine = create_engine(cfg.db_url)

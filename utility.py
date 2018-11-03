@@ -1,28 +1,11 @@
 #utility.py
 from random import randint
-from inspect import Parameter, Signature
+from sqlalchemy import create_engine
+from metadata_db import Base
+from sqlalchemy.orm import sessionmaker
 import config as cfg
 import json, glob, time, subprocess, re
 import dateutil.parser
-
-class StructMeta(type):
-    def __new__(cls, name, bases, dict):
-        clsobj = super().__new__(cls, name, bases, dict)
-        sig = cls.make_signature(clsobj.__fields__)
-        setattr(clsobj, '__signature__', sig)
-        return clsobj
-
-    def make_signature(names):
-        return Signature(
-            Parameter(v, Parameter.POSITIONAL_OR_KEYWORD) for v in names
-        )
-
-class Structure(metaclass = StructMeta):
-    __fields__ = []
-    def __init__(self, *args, **kwargs):
-        bond = self.__signature__.bind(*args, **kwargs)
-        for name, val in bond.arguments.items():
-            setattr(self, name, val)
 
 urls = {
     'transaction': 'https://api.blockcypher.com/v1/eth/main/txs/',
@@ -45,6 +28,12 @@ def _get_random_token():
 def get_file_name(url_key, arg = ''):
     return cfg.output_path + str(int(time.time())) + '_' + arg + '_' + url_key + '.json'
 
+def get_session_db():
+    engine = create_engine(cfg.db_url)
+    Base.metadata.bind = engine
+    DBSession = sessionmaker(bind = engine)
+    return DBSession()
+
 def get_timestamp_from_file(file_name):
     return re.search('/(\d{10})_', file_name).group(1)
 
@@ -63,6 +52,9 @@ def get_json_from_file(file_name):
             return json.load(file)
         except:
             return False
+
+def get_cls_attributes(cls):
+    return cls.__fields__
 
 def download_file(url, file_name):
     subprocess.call(['curl', url, '-H', _get_random_ip() ,'-o', file_name])
