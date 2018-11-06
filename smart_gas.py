@@ -1,7 +1,8 @@
 # It will look at gasprices over the last 100 * 12 seconds
 # and provide gas price estimates based on different predictive model
+# reference https://github.com/ethgasstation/ethgasstation-backend/blob/master/egs/model_gas.py
 import re, csv, random
-from session_db import get_session_db
+from utility import get_session_db
 from smart_gas_lm import Smart_gas_lm
 
 class Smart_gas:
@@ -168,11 +169,11 @@ class Smart_gas:
 
 if __name__ == '__main__':
     sg = Smart_gas(**{
-        'block_train': 200, # number of blocks to train
+        'block_train': 20, # number of blocks to train
         'block_time': 12,
         'waiting_time': 60,
-        'block_test': 1000, # number of blocks to test
-        'start_time': 1539693600 # the test starts from this start_time
+        'block_test': 100, # number of blocks to test
+        'start_time': 1539564000 # the test starts from this start_time
     })
     #sg._write_cvs('test_ds', sg.full_dataset)
     # print(sg.data['gas_oracle_ethchain'])
