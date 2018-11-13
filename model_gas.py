@@ -1,52 +1,25 @@
 import numpy as np 
 import pandas as pd
 from matplotlib import pyplot as plt
+plt.style.use('ggplot')
 import pymc3 as pm
 from ggplot import *
 from patsy import dmatrices
 from query import Query as Q
 from numpy.random import rand
+from datetime import datetime
+import seaborn as sns
+import SeabornFig2Grid as sfg
+import matplotlib.gridspec as gridspec
 
 # https://stackoverflow.com/questions/21192002/how-to-combine-2-plots-ggplot-into-one-plot
 
 class Model_gas:
 
-	def _get_legend_markers(self, D_label_color, marker="o", marker_kws={"linestyle":""}):
-
-		markers = [plt.Line2D([0,0],[0,0],color = color, marker = marker, **marker_kws) for color in D_label_color.values()]
-		return (markers, D_label_color.keys())
-
-	def create_data(self):
-		N = 100
-		beer = np.random.normal(loc = 0, scale = 1, size = N)
-		warm = np.random.normal(loc = 0, scale = 1, size = N)
-		family = np.random.randint(2, size = N)
-		# linear combination
-		z = 1 + 2 * beer + -3 * warm + .5 * family
-		# invert-logit function
-		pr = [1 / (1 + np.exp(-i)) for i in z]
-		canada = np.random.binomial(1, p = pr, size = N)
-		# fake family into factor
-		family = np.where(family == 0, 'No', 'Yes')
-		return canada, beer, warm, family  
-
-	def get_df(self):
-		canada, beer, warm, family = self.create_data()
-		df =  pd.DataFrame({
-			'canada': canada,
-			'beer': beer,
-			'warm': warm,
-			'family': family
-		})
-		return df
-
-	def to_csv(self, df):
-		df.to_csv('canada.csv', index = False)
-
-	def plt_scatter(self, formula, data = {}):
+	def plt_scatter(self, formula, df):
 		formula += ' -1'
-		y, X = dmatrices(formula, data, return_type = 'dataframe')
-		color = np.ravel(y)	
+		y, X = dmatrices(formula, df, return_type = 'dataframe')
+		color = np.ravel(y)
 		plt.scatter(X[X.columns[0]], X[X.columns[1]], alpha = 0.3, c = color, s = 20)
 		plt.xlabel('gas_price (GWei)', fontsize = 12)
 		plt.ylabel('gas_limit', fontsize = 12)
@@ -54,7 +27,7 @@ class Model_gas:
 		cbar.set_label('waiting time (minutes)', rotation=270)
 		plt.show()
 
-	def frequency_plot(self, formula, df):
+	def _frequency_plot(self, formula, df):
 		model = pm.Model()
 		with model:
 			pm.glm.GLM.from_formula(
@@ -70,34 +43,60 @@ class Model_gas:
 		pm.summary(trace)
 		plt.savefig('frequency-13-oct.png')
 
-	def geom_step(self, df):
-		return ggplot(aes(x = 'x'), data = df) +\
-		    geom_line(aes(y = 'y'), color = 'blue') +\
-		    geom_line(aes(y = 'z'), color = 'red')
+	def _get_xlabels(self, x):
+		return [i for i in x if i % 3600 == 0 or (i - 1)% 3600 == 0]
+
+	def _get_hDate(self, ts):
+		return datetime.utcfromtimestamp(ts).strftime('%H:%M')
+
+	def set_plots(self, dfs = []):
+		fig = plt.figure()
+		x = self._get_xlabels(dfs[0]['unix_ts'])
+		labels = [self._get_hDate(ts) for ts in x]
+
+		for i, df in enumerate(dfs):
+			cols = list(df)
+			ax = fig.add_subplot(len(dfs), 1, i + 1)
+			ax.plot(df[cols[0]], df[cols[1]])
+			# ax.set_xlabel(cols[0])
+			ax.set_xticklabels([])
+			ax.set_ylabel(cols[1])
+		plt.xticks(x, labels, rotation = '45')
+		plt.show()
+
+	def density_estimation(self, **kwargs):
+		cs = ['c', 'r', 'y', 'b']
+		cats = df.category.unique()
+		for i, c in enumerate(cats):
+			d = kwargs['df'].loc[df['category'] == c]
+			print(kwargs['df'].head())
+			g = sns.jointplot(x = kwargs['x'], y = kwargs['y'], data = d, kind = 'hex', color = cs[i])
+			plt.title(c)
+			g.savefig(c + '.png')
 
 if __name__ == '__main__':
 	m = Model_gas()
 	q = Q(**{
 		'tstart': 1539561600, 
-		'tstop': 1539561600 + 12 * 60 * 100
+		'tstop': 1539561600 + (60 * 60 * 24)
 	})
-	print(q.get_pending_tx().head())
-	g1 = m.geom_step(df = q.get_pending_tx())
-	print(g1)
 
-	# g2 = m.geom_step(df = q.get_difficulty())
+	# m.set_plots([
+	# 	q.get_gasPrice(), 
+	# 	# q.get_difficulty(), 
+	# 	q.get_pending_txs(), 
+	# 	q.get_miners(),
+	# 	q.get_usd(),
+	# 	q.get_btc()
+	# ])
 	
+	df = q.get_gasLimit_gasPrice_deltaCategory()
+	# df = df.loc[df['category'] == 'negative_time']
 
-	# g.make()
-	# fig = plt.gcf()
-	# ax = plt.gca()
-	# plt.show()
+	# m.density_estimation(**{
+	# 	'df': df,
+	# 	'x': 'waiting_time_s', #'gas_limit'
+	# 	'y': 'gas_price_gWei'
+	# })
 
-
-	# print(Q().get_gasLimit_gasPrice_deltaCategory(100))
-	# m.plt_scatter('category ~ gWei + gas_limit', data = Q().get_gasLimit_gasPrice_deltaCategory(limit = 1000))
-
-	# m.to_csv(m.get_df())
-	# m.plt_scatter('canada ~ beer + warm', data = m.get_df())
-	# m.frequency_plot('canada ~ beer + warm + family')
-	# m.frequency_plot('category ~ gWei + gas_limit', Q().get_gasLimit_gasPrice_deltaCategory(limit = 100))
+	m.plt_scatter('categoryNumber ~ gas_price_gWei + gas_limit', df = q.get_gasLimit_gasPrice_deltaCategory())
