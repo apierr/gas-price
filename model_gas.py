@@ -81,22 +81,22 @@ if __name__ == '__main__':
 		'tstop': 1539561600 + (60 * 60 * 24)
 	})
 
-	# m.set_plots([
-	# 	q.get_gasPrice(), 
-	# 	# q.get_difficulty(), 
-	# 	q.get_pending_txs(), 
-	# 	q.get_miners(),
-	# 	q.get_usd(),
-	# 	q.get_btc()
-	# ])
+	m.set_plots([
+		q.get_gasPrice(), 
+		# q.get_difficulty(), 
+		q.get_pending_txs(), 
+		q.get_miners(),
+		q.get_usd(),
+		q.get_btc()
+	])
 	
-	df = q.get_gasLimit_gasPrice_deltaCategory()
-	# df = df.loc[df['category'] == 'negative_time']
+	# df = q.get_gasLimit_gasPrice_deltaCategory()
+	# # df = df.loc[df['category'] == 'negative_time']
 
-	# m.density_estimation(**{
-	# 	'df': df,
-	# 	'x': 'waiting_time_s', #'gas_limit'
-	# 	'y': 'gas_price_gWei'
-	# })
+	# # m.density_estimation(**{
+	# # 	'df': df,
+	# # 	'x': 'waiting_time_s', #'gas_limit'
+	# # 	'y': 'gas_price_gWei'
+	# # })
 
-	m.plt_scatter('categoryNumber ~ gas_price_gWei + gas_limit', df = q.get_gasLimit_gasPrice_deltaCategory())
+	# m.plt_scatter('categoryNumber ~ gas_price_gWei + gas_limit', df = q.get_gasLimit_gasPrice_deltaCategory())

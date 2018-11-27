@@ -29,10 +29,13 @@ def get_file_name(url_key, arg = ''):
     return cfg.output_path + str(int(time.time())) + '_' + arg + '_' + url_key + '.json'
 
 def get_session_db():
-    engine = create_engine(cfg.db_url)
+    engine = get_engine()
     Base.metadata.bind = engine
     DBSession = sessionmaker(bind = engine)
     return DBSession()
+
+def get_engine():
+    return create_engine(cfg.db_url)
 
 def get_timestamp_from_file(file_name):
     return re.search('/(\d{10})_', file_name).group(1)
