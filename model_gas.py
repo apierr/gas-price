@@ -9,7 +9,6 @@ from query import Query as Q
 from numpy.random import rand
 from datetime import datetime
 import seaborn as sns
-import SeabornFig2Grid as sfg
 import matplotlib.gridspec as gridspec
 import config as cfg
 
@@ -113,8 +112,8 @@ if __name__ == '__main__':
 		'tstop': 1539561600 + (60 * 60 * 24)
 	})
 	# print(m._get_merge_df().head())
-	# m.write_merged_df()
-	m.heat_map_correlation()
+	m.write_merged_df()
+	# m.heat_map_correlation()
 
 	# print(q.get_delta_resample())
 	#print((df.received.max() - df.received.min()).seconds)

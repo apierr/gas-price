@@ -15,6 +15,27 @@ class Query:
 			ORDER by file_timestamp
 		''' % (self.tstart, self.tstop)
 
+	def _get_delta(self):
+		sql = '''
+			SELECT
+				strftime('%Y-%m-%d %H:%M:%S', datetime(received, 'unixepoch')) as received,
+			    bck_time - received as wait_time_s
+			FROM
+				tx natural join block 
+			WHERE 
+				bck_id > 0 AND
+				received > 1539561600
+		'''
+		return pd.read_sql_query(sql, get_engine())
+
+	def get_delta_resample(self):
+		# change received from object to datetime format
+		df = self._get_delta()
+		df['received'] = pd.to_datetime(df.received)
+		# df = df.resample('15S', on = 'received').mean()
+		df = df.resample('15S', on = 'received').mean()
+		return df
+
 	def get_gasLimit_gasPrice_deltaCategory(self, rowNumber = 100000):
 		sql = '''
 			SELECT 
@@ -59,9 +80,9 @@ class Query:
 			SELECT
 				file_timestamp as unix_ts, 
 				usd 
-			FROM networkstats
-			WHERE
-		''' + self._get_timeFrame()
+			FROM netStats
+			ORDER by file_timestamp
+		'''
 		return pd.read_sql_query(sql, get_engine())
 
 	def get_btc(self):
@@ -69,9 +90,9 @@ class Query:
 			SELECT
 				file_timestamp as unix_ts, 
 				btc 
-			FROM networkstats
-			WHERE
-		''' + self._get_timeFrame()
+			FROM netStats
+			ORDER by file_timestamp
+		'''
 		return pd.read_sql_query(sql, get_engine())
 
 	def get_miners(self):
@@ -90,7 +111,7 @@ class Query:
 			SELECT 
 				file_timestamp as unix_ts, 
 				difficulty
-			FROM networkstats WHERE
+			FROM netStats WHERE
 		''' + self._get_timeFrame()
 		return pd.read_sql_query(sql, get_engine())
 
@@ -98,9 +119,10 @@ class Query:
 		sql = '''
 			SELECT
 				file_timestamp as unix_ts,
-				fastest as Price_GWei
-			FROM gasoracleethchain WHERE
-		''' + self._get_timeFrame()
+				fastest as Fastest_price
+			FROM oracleEthchain
+			ORDER by file_timestamp
+		'''
 		return pd.read_sql_query(sql, get_engine())
 
 	def get_pending_txs(self):
@@ -108,8 +130,9 @@ class Query:
 			SELECT
 				file_timestamp as unix_ts,
 				unconfirmed_count as pending_tx
-			FROM memoryPool WHERE
-		''' + self._get_timeFrame()
+			FROM memoryPool
+			ORDER by file_timestamp
+		'''
 		return pd.read_sql_query(sql, get_engine())
 
 if __name__ == '__main__':
