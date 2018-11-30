@@ -3,7 +3,6 @@ import pandas as pd
 from matplotlib import pyplot as plt
 plt.style.use('ggplot')
 import pymc3 as pm
-from ggplot import *
 from patsy import dmatrices
 from query import Query as Q
 from numpy.random import rand
