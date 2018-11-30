@@ -11,6 +11,7 @@ from datetime import datetime
 import seaborn as sns
 import SeabornFig2Grid as sfg
 import matplotlib.gridspec as gridspec
+import config as cfg
 
 # https://stackoverflow.com/questions/21192002/how-to-combine-2-plots-ggplot-into-one-plot
 
@@ -74,21 +75,59 @@ class Model_gas:
 			plt.title(c)
 			g.savefig(c + '.png')
 
+	def heat_map_correlation(self):
+		df = pd.read_csv(cfg.df_fn)
+		# method parameter can be pearson, kendall, spearman
+		# https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.corr.html
+		columns_name = ['btc', 'usd', 'pending_tx', 'Fastest_price']
+		sns.heatmap(df[columns_name].corr(method = 'pearson', min_periods = 1), annot = True, fmt = '.2f')
+		plt.show()
+
+	def _drop_ts(self, df):
+		# it drops the unix_timestamp columns
+		try:
+			return df.drop(['unix_ts'], axis=1)
+		except:
+			df = df.reset_index()
+			return df.drop(['received'], axis = 1)
+
+	def write_merged_df(self):
+		dfs = [
+			q.get_usd(),
+			q.get_pending_txs(),
+			q.get_btc(),
+			q.get_gasPrice()
+		]
+		for i in range(len(dfs)):
+			try:
+				rs = rs.join(self._drop_ts(dfs[i]), how ='outer')
+			except:
+				rs = dfs[0]
+		rs.unix_ts = rs.unix_ts.fillna(0).astype(int)
+		rs.to_csv(cfg.df_fn)
+
 if __name__ == '__main__':
 	m = Model_gas()
 	q = Q(**{
 		'tstart': 1539561600, 
 		'tstop': 1539561600 + (60 * 60 * 24)
 	})
+	# print(m._get_merge_df().head())
+	# m.write_merged_df()
+	m.heat_map_correlation()
 
-	m.set_plots([
-		q.get_gasPrice(), 
-		# q.get_difficulty(), 
-		q.get_pending_txs(), 
-		q.get_miners(),
-		q.get_usd(),
-		q.get_btc()
-	])
+	# print(q.get_delta_resample())
+	#print((df.received.max() - df.received.min()).seconds)
+
+
+	# m.set_plots([
+	# 	q.get_gasPrice(), 
+	# 	# q.get_difficulty(), 
+	# 	q.get_pending_txs(), 
+	# 	q.get_miners(),
+	# 	q.get_usd(),
+	# 	q.get_btc()
+	# ])
 	
 	# df = q.get_gasLimit_gasPrice_deltaCategory()
 	# # df = df.loc[df['category'] == 'negative_time']

@@ -4,8 +4,9 @@ import config as cfg
 
 class Open_tx:
 
-    def __init__(self):
+    def __init__(self, is2move = False):
         self.pattern = cfg.output_path
+        self.is2move = is2move
 
     def _get_dict(self, json, attributes):
         return {i : json.get(i, None) for i in attributes}
@@ -17,7 +18,7 @@ class Open_tx:
         cls_attributes = util.get_cls_attributes(table)
         print(cls_attributes)
         for file in util.get_files(self.pattern + file_extension):
-            json = util.get_json_from_file(file)
+            json = util.get_json_from_file(file, self.is2move)
             if json:
                 json['file_timestamp'] = util.get_timestamp_from_file(file)
                 rows.append(self._get_dict(json, cls_attributes))
@@ -38,7 +39,7 @@ class Open_tx:
         rows = []
         cls_attributes = util.get_cls_attributes(meta_db.NetStats)
         for file in util.get_files(self.pattern + '*_net_stats.json'):
-            json = util.get_json_from_file(file)
+            json = util.get_json_from_file(file, self.is2move)
             if json and json['status'] == 'OK' and json['data']:
                 json['data']['file_timestamp'] = util.get_timestamp_from_file(file)
                 rows.append(self._get_dict(json['data'], cls_attributes))
@@ -48,7 +49,7 @@ class Open_tx:
         rows = []
         cls_attributes = util.get_cls_attributes(meta_db.PoolsStats)
         for file in util.get_files(self.pattern + '*_pools_stats.json'):
-            json = util.get_json_from_file(file)
+            json = util.get_json_from_file(file, self.is2move)
             if json and json['status'] == 'OK' and json['data'] and json['data']['poolStats']:
                 json = json['data']['poolStats']
                 json['file_timestamp'] = util.get_timestamp_from_file(file)
@@ -72,7 +73,7 @@ if __name__ == '__main__':
     # print(len(open.get_tx()))
     # print(len(open.get_memoryPool()))
     # print(len(open.get_oracleEthchain()))
-    # print(len(open.get_netStats()))
-    print(open.get_poolsStats())
+    print(len(open.get_netStats()))
+    #print(open.get_poolsStats())
     # print(open.get_etherGasStation())
     #print(len(open.get_pending_txs_found()))

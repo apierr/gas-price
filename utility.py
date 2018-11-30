@@ -5,7 +5,7 @@ from metadata_db import Base
 from sqlalchemy.orm import sessionmaker
 import config as cfg
 import json, glob, time, subprocess, re
-import dateutil.parser
+import dateutil.parser, shutil
 
 urls = {
     'transaction': 'https://api.blockcypher.com/v1/eth/main/txs/',
@@ -49,12 +49,14 @@ def get_json_from_csv_file(file_name, fieldnames = ('ts', 'pending_txs_found')):
         json.append(dict(row))
     return json
 
-def get_json_from_file(file_name):
+def get_json_from_file(file_name, is2move = False):
     with open(file_name) as file:
         try:
-            return json.load(file)
+            result = json.load(file)
         except:
-            return False
+            result = False
+    if is2move: shutil.move(file_name, cfg.dst_files_read)
+    return result
 
 def get_cls_attributes(cls):
     return cls.__fields__

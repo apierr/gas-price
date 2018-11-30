@@ -49,8 +49,8 @@ class Load:
 
 if __name__ == '__main__':
     load = Load()
-    open = Open_tx()
-    load.load_tx(open.get_tx())
+    open = Open_tx(is2move = True)
+    # load.load_tx(open.get_tx())
     load.load_memoryPool(open.get_memoryPool())
     load.load_oracleEthchain(open.get_oracleEthchain())
     load.load_netStats(open.get_netStats())
