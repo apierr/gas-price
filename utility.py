@@ -16,7 +16,8 @@ urls = {
     'ether_chain': 'https://www.etherchain.org/api/gasPriceOracle',
     'net_stats': 'https://api.ethpool.org/networkStats',
     'pools_stats': 'https://api.ethpool.org/poolStats',
-    'pool_stats': 'https://api.blockcypher.com/v1/eth/main'
+    'pool_stats': 'https://api.blockcypher.com/v1/eth/main',
+    'predictTable': 'https://ethgasstation.info/json/predictTable.json'
 }
 
 def _get_random_ip():

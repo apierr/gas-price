@@ -20,7 +20,7 @@ class Extract:
         number_of_times_each_minute = 4
         interval = 60 / (number_of_times_each_minute)
         for i in range(number_of_times_each_minute):
-            for url_key in ['ether_gas_stn', 'ether_chain', 'net_stats', 'pools_stats', 'pool_stats', 'ether_gas_price_wait_stn']:
+            for url_key in ['ether_gas_stn', 'ether_chain', 'net_stats', 'pools_stats', 'pool_stats', 'predictTable']:
                 Timer(i * interval, self._download, [url_key]).start()
 
 if __name__ == '__main__':
