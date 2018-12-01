@@ -25,5 +25,5 @@ class Extract:
 
 if __name__ == '__main__':
     extract = Extract()
-    extract.download_tx()
+    #extract.download_tx()
     extract.download_stats()
