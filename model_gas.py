@@ -98,7 +98,7 @@ class Model_gas:
 		]
 		for i in range(len(dfs)):
 			try:
-				rs = rs.join(self._drop_ts(dfs[i]), how ='outer')
+				rs = pd.merge(rs, dfs[i], on = ['unix_ts'])
 			except:
 				rs = dfs[0]
 		rs.unix_ts = rs.unix_ts.fillna(0).astype(int)
