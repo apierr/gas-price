@@ -48,20 +48,8 @@ class Model_gas:
 	def _get_hDate(self, ts):
 		return datetime.utcfromtimestamp(ts).strftime('%H:%M')
 
-	def set_plots(self, dfs = []):
-		fig = plt.figure()
-		x = self._get_xlabels(dfs[0]['unix_ts'])
-		labels = [self._get_hDate(ts) for ts in x]
-
-		for i, df in enumerate(dfs):
-			cols = list(df)
-			ax = fig.add_subplot(len(dfs), 1, i + 1)
-			ax.plot(df[cols[0]], df[cols[1]])
-			# ax.set_xlabel(cols[0])
-			ax.set_xticklabels([])
-			ax.set_ylabel(cols[1])
-		plt.xticks(x, labels, rotation = '45')
-		plt.show()
+	def display_plots(self, columns):
+		pass
 
 	def density_estimation(self, **kwargs):
 		cs = ['c', 'r', 'y', 'b']
@@ -98,11 +86,12 @@ class Model_gas:
 		]
 		for i in range(len(dfs)):
 			try:
-				rs = pd.merge(rs, dfs[i], on = ['unix_ts'])
+				df = pd.merge(df, dfs[i], on = ['unix_ts'])
 			except:
-				rs = dfs[0]
-		rs.unix_ts = rs.unix_ts.fillna(0).astype(int)
-		rs.to_csv(cfg.df_fn)
+				df = dfs[0]
+		df['time'] = pd.to_datetime(df['unix_ts'], unit='s')
+		df.set_index('time', inplace=True)
+		df.to_csv(cfg.df_fn)
 
 if __name__ == '__main__':
 	m = Model_gas()
@@ -112,11 +101,10 @@ if __name__ == '__main__':
 	})
 	# print(m._get_merge_df().head())
 	m.write_merged_df()
-	# m.heat_map_correlation()
+	#m.heat_map_correlation()
 
 	# print(q.get_delta_resample())
 	#print((df.received.max() - df.received.min()).seconds)
-
 
 	# m.set_plots([
 	# 	q.get_gasPrice(), 
